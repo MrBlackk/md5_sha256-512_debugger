@@ -17,11 +17,6 @@ char	*undefined(char *str)
 	return (ft_strcat(ft_strdup("Undefined: "), str));
 }
 
-char	*md5(char *str)
-{
-	return (ft_strcat(ft_strdup("md5: "), str));
-}
-
 char	*sha256(char *str)
 {
 	return (ft_strcat(ft_strdup("sha256: "), str));
