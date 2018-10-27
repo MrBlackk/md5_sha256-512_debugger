@@ -14,4 +14,4 @@ cmake-build-debug
 # Binary files
 srcs/a.out
 a.out
-avm
+ft_ssl

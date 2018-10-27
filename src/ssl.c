@@ -12,14 +12,16 @@
 
 #include "ssl.h"
 
-char	*undefined(char *str)
+char	*undefined(void *mem, size_t len)
 {
-	return (ft_strcat(ft_strdup("Undefined: "), str));
+    (void)len; // suppress not used param warning
+	return (ft_strcat(ft_strdup("Undefined: "), mem));
 }
 
-char	*sha256(char *str)
+char	*sha256(void *mem, size_t len)
 {
-	return (ft_strcat(ft_strdup("sha256: "), str));
+    (void)len; // suppress not used param warning
+	return (ft_strcat(ft_strdup("sha256: "), mem));
 }
 
 int		main(int argc, char **argv)
@@ -35,7 +37,7 @@ int		main(int argc, char **argv)
 		{
 			if (ft_strequ(argv[1], g_digests[i].name))
 			{
-				ft_putendl(g_digests[i].digest(argv[2]));
+				ft_putendl(g_digests[i].digest(argv[2], ft_strlen(argv[2])));
 			}
 			i++;
 		}

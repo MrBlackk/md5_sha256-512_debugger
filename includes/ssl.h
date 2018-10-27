@@ -19,7 +19,7 @@
 # define MD5 1
 # define SHA256 2
 
-typedef char *t_function(char *var);
+typedef char *t_function(void *mem, size_t len);
 typedef struct s_digest	t_digest;
 
 struct			s_digest
@@ -29,9 +29,9 @@ struct			s_digest
 	t_function	*digest;
 };
 
-char	*undefined(char *str);
-char	*md5(char *str);
-char	*sha256(char *str);
+char	*undefined(void *mem, size_t len);
+char	*md5(void *mem, size_t len);
+char	*sha256(void *mem, size_t len);
 
 t_digest g_digests[] =
 {

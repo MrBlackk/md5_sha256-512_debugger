@@ -44,7 +44,19 @@ int g_b = 0x89abcdef;
 int g_c = 0xfedcba98;
 int g_d = 0x76543210;
 
-char	*md5(char *str)
+size_t calculate_addition(size_t init_len) {
+    return init_len + 1001; //todo: calculate
+}
+
+char	*md5(void *init_mem, size_t init_len)
 {
-	return (ft_strcat(ft_strdup("md5: "), str));
+    void *mem;
+    size_t add;
+    size_t len;
+
+    add = calculate_addition(init_len);
+    len = init_len + 1 + add;
+    mem = ft_memalloc(len + 1 + add);
+    ft_memcpy(mem, init_mem, init_len);
+	return (ft_strcat(ft_strdup("md5: "), mem));
 }
