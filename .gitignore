@@ -1,0 +1,17 @@
+# General
+.DS_Store
+._*
+
+#CLion
+.cmake-build-debug
+cmake-build-debug
+.idea
+
+# Compiled Object files
+*.o
+*.a
+
+# Binary files
+srcs/a.out
+a.out
+avm
