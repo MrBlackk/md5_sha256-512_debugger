@@ -12,10 +12,10 @@
 
 #include "md5.h"
 
-unsigned int g_a = 0x67452301;
-unsigned int g_b = 0xefcdab89;
-unsigned int g_c = 0x98badcfe;
-unsigned int g_d = 0x10325476;
+unsigned int g_a = A;
+unsigned int g_b = B;
+unsigned int g_c = C;
+unsigned int g_d = D;
 
 unsigned int g_table[64] =
 {
@@ -112,7 +112,7 @@ unsigned int fourth_round(unsigned int x, unsigned int y, unsigned int z)
 }
 
 void	debug_abcd() {
-	ft_printf("---------------\n");
+	ft_printf("----------\n");
 	ft_printf("%u\n", g_a);
 	ft_printf("%u\n", g_b);
 	ft_printf("%u\n", g_c);
@@ -125,23 +125,64 @@ unsigned int left_rotate(unsigned int x, int n)
 	return (x << n) | (x >> (32 - n));
 }
 
-void	first(unsigned int *mem) {
+unsigned int	get_hex(int num) {
+	if (num > 9) {
+		return num + 'a' - 10;
+	} else {
+		return num + '0';
+	}
+}
+
+void	result(char *res, unsigned int a, unsigned int j) {
+	unsigned int i = 0;
+	unsigned int r;
+	while(i <= 32) {
+		r = (a & (255 << i)) >> i;
+		res[j++] = get_hex(r / 16);
+		res[j++] = get_hex(r % 16);
+		i += 8;
+	}
+}
+
+void	first(unsigned int *mem, char *res) {
 	int i = 0;
+	int j = 0;
 	unsigned  int f;
-	while (i < 16) {
-		f = g_b + left_rotate(first_round(g_b, g_c, g_d) + g_a + g_table[i] + mem[i],g_left_rotation[i]);
+	while (i < 64) {
+		if (i < 16) {
+			f = g_b + left_rotate(first_round(g_b, g_c, g_d) + g_a + g_table[i] + mem[j],g_left_rotation[i]);
+		} else if (i >= 16 && i < 32) {
+			f = g_b + left_rotate(second_round(g_b, g_c, g_d) + g_a + g_table[i] + mem[(5 * i + 1) % 16],g_left_rotation[i]);
+		} else if (i >= 32 && i < 48) {
+			f = g_b + left_rotate(third_round(g_b, g_c, g_d) + g_a + g_table[i] + mem[(3 * i + 5) % 16],g_left_rotation[i]);
+		} else {
+			f = g_b + left_rotate(fourth_round(g_b, g_c, g_d) + g_a + g_table[i] + mem[(7 * i) % 16],g_left_rotation[i]);
+		}
 		g_a = g_d;
 		g_d = g_c;
 		g_c = g_b;
 		g_b = f;
+		ft_printf("%d/%d:", i, (5 * i + 1) % 16);
 		debug_abcd();
 		i++;
+		j = (j + 1) % 16;
 	}
+	g_a += A;
+	g_b += B;
+	g_c += C;
+	g_d += D;
+	debug_abcd();
+	result(res, g_a, 0);
+	result(res, g_b, 8);
+	result(res, g_c, 16);
+	result(res, g_d, 24);
+	res[32] = '\0'; //todo: check bzero
 }
 
 char	*md5(void *init_mem, size_t init_len)
 {
     char mem[BLOCK_SIZE];
+    char res[MD5_LENGTH + 1];
     size_t len;
 
     len = calculate_new_length(init_len);
@@ -151,7 +192,8 @@ char	*md5(void *init_mem, size_t init_len)
     ft_memset(&mem[MESSAGE_SIZE], (int) (BYTE * init_len), 1); //todo: could be 8 bytes for message size
     debug(mem, 16);
 
-	first((unsigned int *)mem);
+	ft_bzero(res, MD5_LENGTH + 1);
+	first((unsigned int *)mem, res);
 
-	return (ft_strcat(ft_strdup("md5: "), mem));
+	return ft_strdup(res);
 }

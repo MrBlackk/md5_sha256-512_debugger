@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 project(ft_ssl_md5 C)
 
 set(CMAKE_C_STANDARD 11)
