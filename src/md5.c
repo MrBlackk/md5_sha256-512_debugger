@@ -78,7 +78,7 @@ void    debug(void *mem, size_t len) {
     print_blocks(mem, len);
 }
 
-size_t calculate_new_length(size_t init_len) {
+size_t calculate_num_blocks(size_t init_len) {
     size_t last_block;
     size_t len;
     size_t num_blocks;
@@ -88,7 +88,7 @@ size_t calculate_new_length(size_t init_len) {
     num_blocks = len / BLOCK_SIZE + 1;
     if (last_block > MESSAGE_SIZE)
         num_blocks++;
-    return num_blocks * BLOCK_SIZE;
+    return num_blocks;
 }
 
 unsigned int first_round(unsigned int x, unsigned int y, unsigned int z)
@@ -144,10 +144,14 @@ void	result(char *res, unsigned int a, unsigned int j) {
 	}
 }
 
-void	first(unsigned int *mem, char *res) {
+void	first(unsigned int *mem) {
 	int i = 0;
 	int j = 0;
 	unsigned  int f;
+	unsigned int a = g_a;
+	unsigned int b = g_b;
+	unsigned int c = g_c;
+	unsigned int d = g_d;
 	while (i < 64) {
 		if (i < 16) {
 			f = g_b + left_rotate(first_round(g_b, g_c, g_d) + g_a + g_table[i] + mem[j],g_left_rotation[i]);
@@ -167,33 +171,65 @@ void	first(unsigned int *mem, char *res) {
 		i++;
 		j = (j + 1) % 16;
 	}
-	g_a += A;
-	g_b += B;
-	g_c += C;
-	g_d += D;
+	g_a += a;
+	g_b += b;
+	g_c += c;
+	g_d += d;
 	debug_abcd();
-	result(res, g_a, 0);
-	result(res, g_b, 8);
-	result(res, g_c, 16);
-	result(res, g_d, 24);
-	res[32] = '\0'; //todo: check bzero
+}
+
+void	set_memory_length(char *mem, size_t value) {
+	int i;
+	unsigned int byte;
+
+	i = 0;
+	while (i < 4)
+	{
+		byte = value >> BYTE * i;
+		if (byte != 0)
+		{
+			ft_memset(mem, byte, 1);
+			mem++;
+		}
+		i++;
+	}
 }
 
 char	*md5(void *init_mem, size_t init_len)
 {
     char mem[BLOCK_SIZE];
     char res[MD5_LENGTH + 1];
-    size_t len;
+    size_t num;
 
-    len = calculate_new_length(init_len);
-    ft_bzero(mem, BLOCK_SIZE);
-    ft_memcpy(mem, init_mem, init_len);
-    ft_memset(&mem[init_len], FIRST_BITE, 1);
-    ft_memset(&mem[MESSAGE_SIZE], (int) (BYTE * init_len), 1); //todo: could be 8 bytes for message size
-    debug(mem, 16);
-
+	num = calculate_num_blocks(init_len);
 	ft_bzero(res, MD5_LENGTH + 1);
-	first((unsigned int *)mem, res);
+	int i = 0;
+	while (i < num)
+	{
+		ft_bzero(mem, BLOCK_SIZE);
+		if (i + 1 == num)
+			ft_memcpy(mem, &init_mem[i * BLOCK_SIZE], init_len % BLOCK_SIZE);
+		else
+			ft_memcpy(mem, &init_mem[i * BLOCK_SIZE], BLOCK_SIZE);
 
+		if (i + 1 == num)
+		{
+			ft_memset(&mem[init_len % BLOCK_SIZE], FIRST_BITE, 1);
+			set_memory_length(&mem[MESSAGE_SIZE], BYTE * init_len); //todo: could be 8 bytes for message size
+		}
+
+		debug(mem, 16);
+		first((unsigned int *)mem);
+
+		if (i + 1 == num)
+		{
+			result(res, g_a, 0);
+			result(res, g_b, 8);
+			result(res, g_c, 16);
+			result(res, g_d, 24);
+			res[32] = '\0'; //todo: check bzero
+		}
+		i++;
+	}
 	return ft_strdup(res);
 }
