@@ -166,8 +166,8 @@ void	first(unsigned int *mem) {
 		g_d = g_c;
 		g_c = g_b;
 		g_b = f;
-		ft_printf("%d/%d:", i, (5 * i + 1) % 16);
-		debug_abcd();
+//		ft_printf("%d/%d:", i, (5 * i + 1) % 16);
+//		debug_abcd();
 		i++;
 		j = (j + 1) % 16;
 	}
@@ -175,7 +175,7 @@ void	first(unsigned int *mem) {
 	g_b += b;
 	g_c += c;
 	g_d += d;
-	debug_abcd();
+//	debug_abcd();
 }
 
 void	set_memory_length(char *mem, size_t value) {
@@ -203,7 +203,7 @@ char	*md5(void *init_mem, size_t init_len)
 
 	num = calculate_num_blocks(init_len);
 	ft_bzero(res, MD5_LENGTH + 1);
-	int i = 0;
+	unsigned int i = 0;
 	while (i < num)
 	{
 		ft_bzero(mem, BLOCK_SIZE);
@@ -218,7 +218,7 @@ char	*md5(void *init_mem, size_t init_len)
 			set_memory_length(&mem[MESSAGE_SIZE], BYTE * init_len); //todo: could be 8 bytes for message size
 		}
 
-		debug(mem, 16);
+//		debug(mem, 16);
 		first((unsigned int *)mem);
 
 		if (i + 1 == num)

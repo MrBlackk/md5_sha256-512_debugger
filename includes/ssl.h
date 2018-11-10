@@ -15,29 +15,22 @@
 
 # include "md5.h"
 
-# define UNDEFINED 0
-# define MD5 1
-# define SHA256 2
-
 typedef char *t_function(void *mem, size_t len);
 typedef struct s_digest	t_digest;
 
 struct			s_digest
 {
 	char		*name;
-	int			type;
 	t_function	*digest;
 };
 
-char	*undefined(void *mem, size_t len);
 char	*md5(void *mem, size_t len);
 char	*sha256(void *mem, size_t len);
 
 t_digest g_digests[] =
 {
-	{"undefined", UNDEFINED, undefined},
-	{"md5", MD5, md5},
-	{"sha256", SHA256, sha256}
+	{"md5", md5},
+	{"sha256", sha256}
 };
 
 #endif

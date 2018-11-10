@@ -19,7 +19,6 @@
 # define FIRST_BITE 128
 # define BLOCK_SIZE 64
 # define MESSAGE_SIZE 56
-# define LENGTH_SIZE BLOCK_SIZE - MESSAGE_SIZE
 # define MD5_LENGTH 32
 
 # define A 0x67452301
