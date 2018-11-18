@@ -15,7 +15,7 @@
 
 # include "md5.h"
 
-typedef char *t_function(void *mem, size_t len);
+typedef char *t_function(char *mem, int fd);
 typedef struct s_digest	t_digest;
 
 struct			s_digest
@@ -24,8 +24,8 @@ struct			s_digest
 	t_function	*digest;
 };
 
-char	*md5(void *mem, size_t len);
-char	*sha256(void *mem, size_t len);
+char	*md5(char *mem, int fd);
+char	*sha256(char *mem, int fd);
 
 t_digest g_digests[] =
 {

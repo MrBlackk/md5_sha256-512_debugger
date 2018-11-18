@@ -12,9 +12,9 @@
 
 #include "ssl.h"
 
-char	*sha256(void *mem, size_t len)
+char	*sha256(char *mem, int fd)
 {
-    (void)len; // suppress not used param warning
+    (void)fd; // suppress not used param warning
 	return (ft_strcat(ft_strdup("sha256: "), mem));
 }
 
@@ -50,8 +50,14 @@ int		main(int argc, char **argv)
 				break;
 			i++;
 		}
-		if (i != num_digests && argc != 2) // todo: reading files from 0 fd
-			ft_putendl(g_digests[i].digest(argv[2], ft_strlen(argv[2])));
+		if (i != num_digests && argc == 3)
+		{
+			int fd = open(argv[2], O_RDONLY); // todo: open/close errors
+			ft_putendl(g_digests[i].digest(argv[2], fd));
+			close(fd);
+		}
+		else if (argc > 3 && ft_strequ(argv[2], "-s"))
+			ft_putendl(g_digests[i].digest(argv[3], -1));
 		else
 			error(argv[1]);
 	}

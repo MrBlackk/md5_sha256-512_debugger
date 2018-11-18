@@ -26,4 +26,15 @@
 # define C 0x98badcfe
 # define D 0x10325476
 
+typedef struct s_md	t_md;
+
+struct	s_md
+{
+	unsigned int	a;
+	unsigned int	b;
+	unsigned int	c;
+	unsigned int	d;
+	size_t			len;
+};
+
 #endif

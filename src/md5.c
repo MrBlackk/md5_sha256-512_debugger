@@ -144,37 +144,37 @@ void	result(char *res, unsigned int a, unsigned int j) {
 	}
 }
 
-void	first(unsigned int *mem) {
+void	first(unsigned int *mem, t_md *md) {
 	int i = 0;
 	int j = 0;
 	unsigned  int f;
-	unsigned int a = g_a;
-	unsigned int b = g_b;
-	unsigned int c = g_c;
-	unsigned int d = g_d;
+	unsigned int a = md->a;
+	unsigned int b = md->b;
+	unsigned int c = md->c;
+	unsigned int d = md->d;
 	while (i < 64) {
 		if (i < 16) {
-			f = g_b + left_rotate(first_round(g_b, g_c, g_d) + g_a + g_table[i] + mem[j],g_left_rotation[i]);
+			f = b + left_rotate(first_round(b, c, d) + a + g_table[i] + mem[j],g_left_rotation[i]);
 		} else if (i >= 16 && i < 32) {
-			f = g_b + left_rotate(second_round(g_b, g_c, g_d) + g_a + g_table[i] + mem[(5 * i + 1) % 16],g_left_rotation[i]);
+			f = b + left_rotate(second_round(b, c, d) + a + g_table[i] + mem[(5 * i + 1) % 16],g_left_rotation[i]);
 		} else if (i >= 32 && i < 48) {
-			f = g_b + left_rotate(third_round(g_b, g_c, g_d) + g_a + g_table[i] + mem[(3 * i + 5) % 16],g_left_rotation[i]);
+			f = b + left_rotate(third_round(b, c, d) + a + g_table[i] + mem[(3 * i + 5) % 16],g_left_rotation[i]);
 		} else {
-			f = g_b + left_rotate(fourth_round(g_b, g_c, g_d) + g_a + g_table[i] + mem[(7 * i) % 16],g_left_rotation[i]);
+			f = b + left_rotate(fourth_round(b, c, d) + a + g_table[i] + mem[(7 * i) % 16],g_left_rotation[i]);
 		}
-		g_a = g_d;
-		g_d = g_c;
-		g_c = g_b;
-		g_b = f;
+		a = d;
+		d = c;
+		c = b;
+		b = f;
 //		ft_printf("%d/%d:", i, (5 * i + 1) % 16);
 //		debug_abcd();
 		i++;
 		j = (j + 1) % 16;
 	}
-	g_a += a;
-	g_b += b;
-	g_c += c;
-	g_d += d;
+	md->a += a;
+	md->b += b;
+	md->c += c;
+	md->d += d;
 //	debug_abcd();
 }
 
@@ -195,41 +195,65 @@ void	set_memory_length(char *mem, size_t value) {
 	}
 }
 
-char	*md5(void *init_mem, size_t init_len)
+unsigned int	get_next_char_block(char *src, char *dest)
+{
+	unsigned int	len;
+	char 			*ptr;
+
+	len = 0;
+	ptr = src;
+	while (ptr && ptr[len] != '\0' && len < BLOCK_SIZE)
+	{
+		dest[len] = ptr[len];
+		len++;
+	}
+	return len;
+}
+
+unsigned int	get_next_file_block(char *dest, int fd)
+{
+	int ret;
+
+	ret = read(fd, dest, BLOCK_SIZE); //todo: read errors
+	return (unsigned int) ret;
+}
+
+unsigned int	write_next_block(char *src, unsigned int from, char *dest, int fd)
+{
+	unsigned int length;
+
+	ft_bzero(dest, BLOCK_SIZE);
+	if (fd == -1)
+		length = get_next_char_block(&src[from], dest);
+	else
+		length = get_next_file_block(dest, fd);
+
+	return length;
+}
+
+char	*md5(char *init_mem, int fd)
 {
     char mem[BLOCK_SIZE];
     char res[MD5_LENGTH + 1];
-    size_t num;
+    t_md md;
 
-	num = calculate_num_blocks(init_len);
-	ft_bzero(res, MD5_LENGTH + 1);
-	unsigned int i = 0;
-	while (i < num)
+	md.a = A;
+	md.b = B;
+	md.c = C;
+	md.d = D;
+	md.len = write_next_block(init_mem, 0, mem, fd);
+	while (md.len % BLOCK_SIZE == 0)
 	{
-		ft_bzero(mem, BLOCK_SIZE);
-		if (i + 1 == num)
-			ft_memcpy(mem, &init_mem[i * BLOCK_SIZE], init_len % BLOCK_SIZE);
-		else
-			ft_memcpy(mem, &init_mem[i * BLOCK_SIZE], BLOCK_SIZE);
-
-		if (i + 1 == num)
-		{
-			ft_memset(&mem[init_len % BLOCK_SIZE], FIRST_BITE, 1);
-			set_memory_length(&mem[MESSAGE_SIZE], BYTE * init_len); //todo: could be 8 bytes for message size
-		}
-
-//		debug(mem, 16);
-		first((unsigned int *)mem);
-
-		if (i + 1 == num)
-		{
-			result(res, g_a, 0);
-			result(res, g_b, 8);
-			result(res, g_c, 16);
-			result(res, g_d, 24);
-			res[32] = '\0'; //todo: check bzero
-		}
-		i++;
+		first((unsigned int *)mem, &md);
+		md.len += write_next_block(init_mem, md.len, mem, fd);
 	}
+	ft_memset(&mem[md.len % BLOCK_SIZE], FIRST_BITE, 1);
+	set_memory_length(&mem[MESSAGE_SIZE], BYTE * md.len); //todo: could be 8 bytes for message size
+	first((unsigned int *)mem, &md);
+	result(res, md.a, 0);
+	result(res, md.b, 8);
+	result(res, md.c, 16);
+	result(res, md.d, 24);
+	res[32] = '\0'; //todo: check bzero
 	return ft_strdup(res);
 }
