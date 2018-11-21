@@ -17,6 +17,14 @@
 
 typedef char *t_function(char *mem, int fd);
 typedef struct s_digest	t_digest;
+typedef struct s_option	t_option;
+
+struct 			s_option
+{
+	char 		is_print;
+	char 		is_quiet;
+	char 		is_reverse;
+};
 
 struct			s_digest
 {
