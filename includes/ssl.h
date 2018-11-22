@@ -21,9 +21,9 @@ typedef struct s_option	t_option;
 
 struct 			s_option
 {
-	char 		is_print;
 	char 		is_quiet;
 	char 		is_reverse;
+	char 		is_stdout;
 };
 
 struct			s_digest

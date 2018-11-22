@@ -210,11 +210,36 @@ unsigned int	get_next_char_block(char *src, char *dest)
 	return len;
 }
 
+unsigned int	get_next_stdout_block(char *dest)
+{
+	char			buff[1];
+	ssize_t			ret;
+	unsigned int	len;
+
+	len = 0;
+	while (len < BLOCK_SIZE && (ret = read(0, buff, 1)))
+	{
+		dest[len] = buff[0];
+		len++;
+	}
+	if (ret < 0)
+	{
+		ft_putendl("error");
+		return 0;
+	}
+	return len;
+}
+
 unsigned int	get_next_file_block(char *dest, int fd)
 {
-	int ret;
+	ssize_t ret;
 
-	ret = read(fd, dest, BLOCK_SIZE); //todo: read errors
+	ret = read(fd, dest, BLOCK_SIZE);
+	if (ret < 0)
+	{
+		ft_putendl("error");
+		return 0;
+	}
 	return (unsigned int) ret;
 }
 
@@ -225,6 +250,8 @@ unsigned int	write_next_block(char *src, unsigned int from, char *dest, int fd)
 	ft_bzero(dest, BLOCK_SIZE);
 	if (fd == -1)
 		length = get_next_char_block(&src[from], dest);
+	else if (fd == 0)
+		length = get_next_stdout_block(dest);
 	else
 		length = get_next_file_block(dest, fd);
 
