@@ -263,18 +263,26 @@ char	*md5(char *init_mem, int fd)
     char mem[BLOCK_SIZE];
     char res[MD5_LENGTH + 1];
     t_md md;
+	size_t len;
 
 	md.a = A;
 	md.b = B;
 	md.c = C;
 	md.d = D;
 	md.len = write_next_block(init_mem, 0, mem, fd);
-	while (md.len % BLOCK_SIZE == 0)
+	len = md.len;
+	while (len == BLOCK_SIZE)
+	{
+		first((unsigned int *)mem, &md);
+		len = write_next_block(init_mem, md.len, mem, fd);
+		md.len += len;
+	}
+	ft_memset(&mem[len], FIRST_BITE, 1);
+	if (len >= MESSAGE_SIZE)
 	{
 		first((unsigned int *)mem, &md);
 		md.len += write_next_block(init_mem, md.len, mem, fd);
 	}
-	ft_memset(&mem[md.len % BLOCK_SIZE], FIRST_BITE, 1);
 	set_memory_length(&mem[MESSAGE_SIZE], BYTE * md.len); //todo: could be 8 bytes for message size
 	first((unsigned int *)mem, &md);
 	result(res, md.a, 0);
