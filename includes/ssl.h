@@ -23,7 +23,7 @@ struct 			s_option
 {
 	char 		is_quiet;
 	char 		is_reverse;
-	char 		is_stdout;
+	char 		is_stdin;
 };
 
 struct			s_digest

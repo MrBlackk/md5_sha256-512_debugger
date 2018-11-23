@@ -26,6 +26,7 @@
 # define C 0x98badcfe
 # define D 0x10325476
 
+typedef unsigned int t_round(unsigned int x, unsigned int y, unsigned int z);
 typedef struct s_md	t_md;
 
 struct	s_md
@@ -34,6 +35,10 @@ struct	s_md
 	unsigned int	b;
 	unsigned int	c;
 	unsigned int	d;
+	unsigned int	a0;
+	unsigned int	b0;
+	unsigned int	c0;
+	unsigned int	d0;
 	size_t			len;
 };
 

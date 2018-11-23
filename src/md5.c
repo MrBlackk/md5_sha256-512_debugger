@@ -12,11 +12,6 @@
 
 #include "md5.h"
 
-unsigned int g_a = A;
-unsigned int g_b = B;
-unsigned int g_c = C;
-unsigned int g_d = D;
-
 unsigned int g_table[64] =
 {
 	0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
@@ -78,111 +73,100 @@ void    debug(void *mem, size_t len) {
     print_blocks(mem, len);
 }
 
-size_t calculate_num_blocks(size_t init_len) {
-    size_t last_block;
-    size_t len;
-    size_t num_blocks;
-
-    len = init_len + 1;
-    last_block = len % BLOCK_SIZE;
-    num_blocks = len / BLOCK_SIZE + 1;
-    if (last_block > MESSAGE_SIZE)
-        num_blocks++;
-    return num_blocks;
-}
-
-unsigned int first_round(unsigned int x, unsigned int y, unsigned int z)
+unsigned int	first_round(unsigned int x, unsigned int y, unsigned int z)
 {
     return (x & y) | ((~x) & z);
 }
 
-unsigned int second_round(unsigned int x, unsigned int y, unsigned int z)
+unsigned int	second_round(unsigned int x, unsigned int y, unsigned int z)
 {
     return (x & z) | ((~z) & y);
 }
 
-unsigned int third_round(unsigned int x, unsigned int y, unsigned int z)
+unsigned int	third_round(unsigned int x, unsigned int y, unsigned int z)
 {
     return x ^ y ^ z;
 }
 
-unsigned int fourth_round(unsigned int x, unsigned int y, unsigned int z)
+unsigned int	fourth_round(unsigned int x, unsigned int y, unsigned int z)
 {
     return y ^ ((~z) | x);
 }
 
-void	debug_abcd() {
-	ft_printf("----------\n");
-	ft_printf("%u\n", g_a);
-	ft_printf("%u\n", g_b);
-	ft_printf("%u\n", g_c);
-	ft_printf("%u\n", g_d);
-	ft_printf("---------------\n");
-}
-
-unsigned int left_rotate(unsigned int x, int n)
+unsigned int	left_rotate(unsigned int x, int n)
 {
 	return (x << n) | (x >> (32 - n));
 }
 
-unsigned int	get_hex(int num) {
-	if (num > 9) {
+unsigned int	get_hex(unsigned int num) {
+	if (num > 9)
 		return num + 'a' - 10;
-	} else {
+	else
 		return num + '0';
-	}
 }
 
-void	result(char *res, unsigned int a, unsigned int j) {
-	unsigned int i = 0;
-	unsigned int r;
-	while(i <= 32) {
-		r = (a & (255 << i)) >> i;
-		res[j++] = get_hex(r / 16);
-		res[j++] = get_hex(r % 16);
+void	result(char *res, unsigned int num, unsigned int str_iter) {
+	unsigned int	i;
+	unsigned int	byte;
+
+	i = 0;
+	while(i < 32)
+	{
+		byte = (num & (255 << i)) >> i;
+		res[str_iter++] = (char) get_hex(byte / 16);
+		res[str_iter++] = (char) get_hex(byte % 16);
 		i += 8;
 	}
 }
 
-void	first(unsigned int *mem, t_md *md) {
-	int i = 0;
-	int j = 0;
-	unsigned  int f;
-	unsigned int a = md->a;
-	unsigned int b = md->b;
-	unsigned int c = md->c;
-	unsigned int d = md->d;
-	while (i < 64) {
-		if (i < 16) {
-			f = b + left_rotate(first_round(b, c, d) + a + g_table[i] + mem[j],g_left_rotation[i]);
-		} else if (i >= 16 && i < 32) {
-			f = b + left_rotate(second_round(b, c, d) + a + g_table[i] + mem[(5 * i + 1) % 16],g_left_rotation[i]);
-		} else if (i >= 32 && i < 48) {
-			f = b + left_rotate(third_round(b, c, d) + a + g_table[i] + mem[(3 * i + 5) % 16],g_left_rotation[i]);
-		} else {
-			f = b + left_rotate(fourth_round(b, c, d) + a + g_table[i] + mem[(7 * i) % 16],g_left_rotation[i]);
-		}
-		a = d;
-		d = c;
-		c = b;
-		b = f;
-//		ft_printf("%d/%d:", i, (5 * i + 1) % 16);
-//		debug_abcd();
+unsigned int	round(t_round round_func, unsigned int mem, t_md *md, int i)
+{
+	return md->b0 + left_rotate(round_func(md->b0, md->c0, md->d0) +
+			+ md->a0 + g_table[i] + mem, g_left_rotation[i]);
+}
+
+unsigned int	round_result(unsigned int *mem, t_md *md, int i)
+{
+	if (i < 16)
+		return round(first_round, mem[i], md, i);
+	else if (i >= 16 && i < 32)
+		return round(second_round, mem[(5 * i + 1) % 16], md, i);
+	else if (i >= 32 && i < 48)
+		return round(third_round, mem[(3 * i + 5) % 16], md, i);
+	else
+		return round(fourth_round, mem[(7 * i) % 16], md, i);
+}
+
+void	permutation(unsigned int *mem, t_md *md)
+{
+	int				i;
+	unsigned int	temp;
+
+	md->a0 = md->a;
+	md->b0 = md->b;
+	md->c0 = md->c;
+	md->d0 = md->d;
+	i = 0;
+	while (i < 64)
+	{
+		temp = round_result(mem, md, i);
+		md->a0 = md->d0;
+		md->d0 = md->c0;
+		md->c0 = md->b0;
+		md->b0 = temp;
 		i++;
-		j = (j + 1) % 16;
 	}
-	md->a += a;
-	md->b += b;
-	md->c += c;
-	md->d += d;
-//	debug_abcd();
+	md->a += md->a0;
+	md->b += md->b0;
+	md->c += md->c0;
+	md->d += md->d0;
 }
 
 void	set_memory_length(char *full_mem, size_t length) {
-	int i;
-	char byte;
-	size_t value;
-	char *mem;
+	int		i;
+	char	byte;
+	size_t	value;
+	char	*mem;
 
 	i = 0;
 	value = length * BYTE;
@@ -211,7 +195,7 @@ unsigned int	get_next_char_block(char *src, char *dest)
 	return len;
 }
 
-unsigned int	get_next_stdout_block(char *dest)
+unsigned int	get_next_stdin_block(char *dest)
 {
 	char			buff[1];
 	ssize_t			ret;
@@ -225,7 +209,7 @@ unsigned int	get_next_stdout_block(char *dest)
 	}
 	if (ret < 0)
 	{
-		ft_putendl("error");
+		ft_putendl("error"); //todo: error exit from common?
 		return 0;
 	}
 	return len;
@@ -233,63 +217,73 @@ unsigned int	get_next_stdout_block(char *dest)
 
 unsigned int	get_next_file_block(char *dest, int fd)
 {
-	ssize_t ret;
+	ssize_t	ret;
 
 	ret = read(fd, dest, BLOCK_SIZE);
 	if (ret < 0)
 	{
-		ft_putendl("error");
+		ft_putendl("error"); //todo: error exit from common?
 		return 0;
 	}
 	return (unsigned int) ret;
 }
 
-unsigned int	write_next_block(char *src, unsigned int from, char *dest, int fd)
+unsigned int	get_next_block(char *src, unsigned int from, char *dest, int fd)
 {
-	unsigned int length;
+	unsigned int	length;
 
 	ft_bzero(dest, BLOCK_SIZE);
 	if (fd == -1)
 		length = get_next_char_block(&src[from], dest);
 	else if (fd == 0)
-		length = get_next_stdout_block(dest);
+		length = get_next_stdin_block(dest);
 	else
 		length = get_next_file_block(dest, fd);
-
 	return length;
+}
+
+void	init_md_vars(t_md *md)
+{
+	md->a = A;
+	md->b = B;
+	md->c = C;
+	md->d = D;
+}
+
+char 	*get_result(t_md *md)
+{
+	char	res[MD5_LENGTH + 1];
+
+	ft_bzero(&res, MD5_LENGTH + 1);
+	result(res, md->a, 0);
+	result(res, md->b, 8);
+	result(res, md->c, 16);
+	result(res, md->d, 24);
+	return ft_strdup(res);
 }
 
 char	*md5(char *init_mem, int fd)
 {
-    char mem[BLOCK_SIZE];
-    char res[MD5_LENGTH + 1];
-    t_md md;
-	size_t len;
+    char	mem[BLOCK_SIZE];
+    t_md	md;
+	size_t	len;
 
-	md.a = A;
-	md.b = B;
-	md.c = C;
-	md.d = D;
-	md.len = write_next_block(init_mem, 0, mem, fd);
+	init_md_vars(&md);
+	md.len = get_next_block(init_mem, 0, mem, fd);
 	len = md.len;
 	while (len == BLOCK_SIZE)
 	{
-		first((unsigned int *)mem, &md);
-		len = write_next_block(init_mem, md.len, mem, fd);
+		permutation((unsigned int *) mem, &md);
+		len = get_next_block(init_mem, md.len, mem, fd);
 		md.len += len;
 	}
 	ft_memset(&mem[len], FIRST_BITE, 1);
 	if (len >= MESSAGE_SIZE)
 	{
-		first((unsigned int *)mem, &md);
-		md.len += write_next_block(init_mem, md.len, mem, fd);
+		permutation((unsigned int *) mem, &md);
+		md.len += get_next_block(init_mem, md.len, mem, fd);
 	}
 	set_memory_length(mem, md.len);
-	first((unsigned int *)mem, &md);
-	result(res, md.a, 0);
-	result(res, md.b, 8);
-	result(res, md.c, 16);
-	result(res, md.d, 24);
-	res[32] = '\0'; //todo: check bzero
-	return ft_strdup(res);
+	permutation((unsigned int *) mem, &md);
+	return get_result(&md);
 }

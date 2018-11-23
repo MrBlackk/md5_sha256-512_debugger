@@ -35,8 +35,8 @@ void	error_exit(char *reason, char *arg)
 
 void	error_command(char *command)
 {
-	int i;
-	int num_digests;
+	int	i;
+	int	num_digests;
 
 	error_message("Invalid command", command);
 	ft_putendl("\nMessage Digest commands:");
@@ -49,18 +49,9 @@ void	error_command(char *command)
 	}
 }
 
-void	enter_name(char *name, char is_str)
+void	format_output(char *hash, t_option *opt, char *digest_name, char *name)
 {
-	if (is_str)
-		ft_putchar('"');
-	ft_putstr(name);
-	if (is_str)
-		ft_putchar('"');
-}
-
-void	format_output(char *hash, t_option *opt, char *digest_name, char *name, char is_str)
-{
-	unsigned int i;
+	unsigned int	i;
 
 	if (!opt->is_reverse && !opt->is_quiet)
 	{
@@ -68,38 +59,48 @@ void	format_output(char *hash, t_option *opt, char *digest_name, char *name, cha
 		while (i < ft_strlen(digest_name))
 			ft_putchar((char) ft_toupper(digest_name[i++]));
 		ft_putstr(" (");
-		enter_name(name, is_str);
+		ft_putstr(name);
 		ft_putstr(") = ");
 	}
 	ft_putstr(hash);
 	if (opt->is_reverse && !opt->is_quiet)
 	{
 		ft_putchar(' ');
-		enter_name(name, is_str);
+		ft_putstr(name);
 	}
 	ft_putchar('\n');
+	ft_strdel(&hash);
 }
 
 void	handle_string(char *str, t_option *opt, t_digest *digest)
 {
-	char *hash;
+	char	*hash;
+	char	*formatted_name;
+	size_t	length;
 
 	hash = digest->digest(str,-1);
-	format_output(hash, opt, digest->name, str, 1);
-	opt->is_stdout = 0;
+	length = ft_strlen(str);
+	formatted_name = ft_strnew(length + 2);
+	formatted_name[0] = '"';
+	ft_strcpy(&formatted_name[1], str);
+	formatted_name[length + 1] = '"';
+	format_output(hash, opt, digest->name, formatted_name);
+	ft_strdel(&formatted_name);
+	opt->is_stdin = 0;
 }
 
-void	handle_stdout(t_digest *digest, t_option *opt)
+void	handle_stdin(t_digest *digest, t_option *opt)
 {
-	char *str;
-	char *hash;
+	char	*stdin;
+	char	*hash;
 
-	str = ft_readfile(0, 100);
-	ft_putstr(str);
-	hash = digest->digest(str,-1);
+	stdin = ft_readfile(0, 100);
+	ft_putstr(stdin);
+	hash = digest->digest(stdin,-1);
 	ft_putendl(hash);
-	ft_strdel(&str);
-	opt->is_stdout = 0;
+	ft_strdel(&stdin);
+	ft_strdel(&hash);
+	opt->is_stdin = 0;
 }
 
 int		parse_options(int argc, char **argv, t_option *opt, t_digest *digest)
@@ -109,7 +110,7 @@ int		parse_options(int argc, char **argv, t_option *opt, t_digest *digest)
 
 	opt->is_quiet = 0;
 	opt->is_reverse = 0;
-	opt->is_stdout = 1;
+	opt->is_stdin = 1;
 	i = 2;
 	while (i < argc && argv[i][0] == '-')
 	{
@@ -117,7 +118,7 @@ int		parse_options(int argc, char **argv, t_option *opt, t_digest *digest)
 			error_exit("Wrong option used", argv[i]);
 		option = argv[i][1];
 		if (option == 'p')
-			handle_stdout(digest, opt);
+			handle_stdin(digest, opt);
 		else if (option == 'q')
 			opt->is_quiet = 1;
 		else if (option == 'r')
@@ -136,19 +137,24 @@ void	parse_args(int argc, char **argv, t_digest *digest)
 	int			i;
 	t_option	opt;
 	char 		*hash;
+	int			fd;
 
 	i = parse_options(argc, argv, &opt, digest);
-	if (i == argc && opt.is_stdout)
-		ft_putendl(digest->digest(argv[i], 0));
+	if (i == argc && opt.is_stdin)
+	{
+		hash = digest->digest(argv[i], 0);
+		ft_putendl(hash);
+		ft_strdel(&hash);
+	}
 	while (i < argc)
 	{
-		int fd = open(argv[i], O_RDONLY);
+		fd = open(argv[i], O_RDONLY);
 		if (fd < 0)
 			error_message("No such file", argv[i]);
 		else
 		{
 			hash = digest->digest(argv[i],fd);
-			format_output(hash, &opt, digest->name, argv[i], 0);
+			format_output(hash, &opt, digest->name, argv[i]);
 			close(fd);
 		}
 		i++;
@@ -157,10 +163,10 @@ void	parse_args(int argc, char **argv, t_digest *digest)
 
 int		main(int argc, char **argv)
 {
-	int i;
-	int num_digests;
+	int	i;
+	int	num_digests;
 
-	num_digests = sizeof(g_digests) / sizeof(struct s_digest);
+	num_digests = sizeof(g_digests) / sizeof(t_digest);
 	if (argc >= 2)
 	{
 		i = 0;
