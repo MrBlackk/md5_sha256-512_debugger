@@ -178,19 +178,20 @@ void	first(unsigned int *mem, t_md *md) {
 //	debug_abcd();
 }
 
-void	set_memory_length(char *mem, size_t value) {
+void	set_memory_length(char *full_mem, size_t length) {
 	int i;
-	unsigned int byte;
+	char byte;
+	size_t value;
+	char *mem;
 
 	i = 0;
-	while (i < 4)
+	value = length * BYTE;
+	mem = &full_mem[MESSAGE_SIZE];
+	while (i < 8)
 	{
-		byte = value >> BYTE * i;
-		if (byte != 0)
-		{
-			ft_memset(mem, byte, 1);
-			mem++;
-		}
+		byte = (char)(value >> BYTE * i);
+		ft_memset(mem, byte, 1);
+		mem++;
 		i++;
 	}
 }
@@ -283,7 +284,7 @@ char	*md5(char *init_mem, int fd)
 		first((unsigned int *)mem, &md);
 		md.len += write_next_block(init_mem, md.len, mem, fd);
 	}
-	set_memory_length(&mem[MESSAGE_SIZE], BYTE * md.len); //todo: could be 8 bytes for message size
+	set_memory_length(mem, md.len);
 	first((unsigned int *)mem, &md);
 	result(res, md.a, 0);
 	result(res, md.b, 8);

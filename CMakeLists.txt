@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.9)
-project(ft_ssl_md5 C)
+project(ft_ssl C)
 
 set(CMAKE_C_STANDARD 11)
 
 include_directories(includes)
 include_directories(libft/includes)
 
-add_executable(ft_ssl_md5
+add_executable(ft_ssl
         includes/md5.h
         includes/ssl.h
         libft/includes/libft.h

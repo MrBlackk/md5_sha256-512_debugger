@@ -60,7 +60,7 @@ void	enter_name(char *name, char is_str)
 
 void	format_output(char *hash, t_option *opt, char *digest_name, char *name, char is_str)
 {
-	int i;
+	unsigned int i;
 
 	if (!opt->is_reverse && !opt->is_quiet)
 	{
