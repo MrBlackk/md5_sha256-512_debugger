@@ -1,33 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   md5.h                                              :+:      :+:    :+:   */
+/*   common.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vchornyi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/10/22 20:54:55 by vchornyi          #+#    #+#             */
-/*   Updated: 2018/10/22 20:54:56 by vchornyi         ###   ########.fr       */
+/*   Created: 2018/11/24 20:54:55 by vchornyi          #+#    #+#             */
+/*   Updated: 2018/11/24 20:54:56 by vchornyi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MD5_H
-# define MD5_H
+#ifndef COMMON_H
+# define COMMON_H
 
 # include "libft.h"
-# include "common.h"
 
-# define MD5_LENGTH 32
+# define BITS_IN_BYTE 8
+# define BLOCK_SIZE 64
+# define MESSAGE_SIZE 56
+# define FIRST_BITE 128
 
-typedef unsigned int t_round(unsigned int x, unsigned int y, unsigned int z);
-typedef struct s_md	t_md;
-
-struct	s_md
-{
-	unsigned int	a;
-	unsigned int	b;
-	unsigned int	c;
-	unsigned int	d;
-	size_t			len;
-};
+unsigned int	get_next_block(char *src, char *dest, int fd, unsigned int block_size);
+void	set_memory_length(char *init_mem, size_t length, char is_little_endian);
+void    debug(void *mem, size_t len);
 
 #endif

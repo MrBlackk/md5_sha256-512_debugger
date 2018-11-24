@@ -12,7 +12,7 @@
 
 #include "md5.h"
 
-unsigned int g_table[64] =
+unsigned int g_md5_const[64] =
 {
 	0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 	0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
@@ -32,7 +32,7 @@ unsigned int g_table[64] =
 	0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
 };
 
-unsigned int g_left_rotation[64] =
+unsigned int g_md5_left_rotation[64] =
 {
 	7, 12, 17, 22, 7, 12, 17, 22,
 	7, 12, 17, 22, 7, 12, 17, 22,
@@ -43,35 +43,6 @@ unsigned int g_left_rotation[64] =
 	6, 10, 15, 21, 6, 10, 15, 21,
 	6, 10, 15, 21, 6, 10, 15, 21
 };
-
-
-void    print_memory(void *memory, size_t len) {
-    size_t i = 0;
-    unsigned char *bytes = (unsigned char*)memory;
-    while (i < len) {
-        ft_printf("%08b ", bytes[i]);
-        i++;
-        if (i % 8 == 0) {
-            ft_printf("\n");
-        }
-    }
-    ft_printf("\n");
-}
-
-void    print_blocks(void *memory, size_t len) {
-    size_t i = 0;
-    unsigned int *nums = (unsigned int*)memory;
-    while (i < len) {
-        ft_printf("[%u] %u\n", i, nums[i]);
-        i++;
-    }
-    ft_printf("\n");
-}
-
-void    debug(void *mem, size_t len) {
-    print_memory(mem, len * 4);
-    print_blocks(mem, len);
-}
 
 unsigned int	first_round(unsigned int x, unsigned int y, unsigned int z)
 {
@@ -119,27 +90,27 @@ void	result(char *res, unsigned int num, unsigned int str_iter) {
 	}
 }
 
-unsigned int	round(t_round round_func, unsigned int mem, t_md *md, int i)
+unsigned int	md5_round(t_round round_func, unsigned int mem, t_md *md, int i)
 {
 	return md->b + left_rotate(round_func(md->b, md->c, md->d) +
-			+ md->a + g_table[i] + mem, g_left_rotation[i]);
+			+ md->a + g_md5_const[i] + mem, g_md5_left_rotation[i]);
 }
 
 unsigned int	round_result(unsigned int *mem, t_md *md, int i)
 {
 	if (i < 16)
-		return round(first_round, mem[i], md, i);
+		return md5_round(first_round, mem[i], md, i);
 	else if (i >= 16 && i < 32)
-		return round(second_round, mem[(5 * i + 1) % 16], md, i);
+		return md5_round(second_round, mem[(5 * i + 1) % 16], md, i);
 	else if (i >= 32 && i < 48)
-		return round(third_round, mem[(3 * i + 5) % 16], md, i);
+		return md5_round(third_round, mem[(3 * i + 5) % 16], md, i);
 	else
-		return round(fourth_round, mem[(7 * i) % 16], md, i);
+		return md5_round(fourth_round, mem[(7 * i) % 16], md, i);
 }
 
 void	permutation(unsigned int *mem, t_md *md)
 {
-	int				i;
+	unsigned int	i;
 	unsigned int	temp;
 	unsigned int	start_values[4];
 
@@ -163,92 +134,12 @@ void	permutation(unsigned int *mem, t_md *md)
 	md->d += start_values[3];
 }
 
-void	set_memory_length(char *full_mem, size_t length) {
-	int		i;
-	char	byte;
-	size_t	value;
-	char	*mem;
-
-	i = 0;
-	value = length * BYTE;
-	mem = &full_mem[MESSAGE_SIZE];
-	while (i < 8)
-	{
-		byte = (char)(value >> BYTE * i);
-		ft_memset(mem, byte, 1);
-		mem++;
-		i++;
-	}
-}
-
-unsigned int	get_next_char_block(char *src, char *dest)
+static void	set_initial_values(t_md *md)
 {
-	unsigned int	len;
-	char 			*ptr;
-
-	len = 0;
-	ptr = src;
-	while (ptr && ptr[len] != '\0' && len < BLOCK_SIZE)
-	{
-		dest[len] = ptr[len];
-		len++;
-	}
-	return len;
-}
-
-unsigned int	get_next_stdin_block(char *dest)
-{
-	char			buff[1];
-	ssize_t			ret;
-	unsigned int	len;
-
-	len = 0;
-	while (len < BLOCK_SIZE && (ret = read(0, buff, 1)))
-	{
-		dest[len] = buff[0];
-		len++;
-	}
-	if (ret < 0)
-	{
-		ft_putendl("error"); //todo: error exit from common?
-		return 0;
-	}
-	return len;
-}
-
-unsigned int	get_next_file_block(char *dest, int fd)
-{
-	ssize_t	ret;
-
-	ret = read(fd, dest, BLOCK_SIZE);
-	if (ret < 0)
-	{
-		ft_putendl("error"); //todo: error exit from common?
-		return 0;
-	}
-	return (unsigned int) ret;
-}
-
-unsigned int	get_next_block(char *src, unsigned int from, char *dest, int fd)
-{
-	unsigned int	length;
-
-	ft_bzero(dest, BLOCK_SIZE);
-	if (fd == -1)
-		length = get_next_char_block(&src[from], dest);
-	else if (fd == 0)
-		length = get_next_stdin_block(dest);
-	else
-		length = get_next_file_block(dest, fd);
-	return length;
-}
-
-void	init_md_vars(t_md *md)
-{
-	md->a = A;
-	md->b = B;
-	md->c = C;
-	md->d = D;
+	md->a = 0x67452301;
+	md->b = 0xefcdab89;
+	md->c = 0x98badcfe;
+	md->d = 0x10325476;
 }
 
 char 	*get_result(t_md *md)
@@ -269,22 +160,22 @@ char	*md5(char *init_mem, int fd)
     t_md	md;
 	size_t	len;
 
-	init_md_vars(&md);
-	md.len = get_next_block(init_mem, 0, mem, fd);
+	set_initial_values(&md);
+	md.len = get_next_block(&init_mem[0], mem, fd, BLOCK_SIZE);
 	len = md.len;
 	while (len == BLOCK_SIZE)
 	{
 		permutation((unsigned int *) mem, &md);
-		len = get_next_block(init_mem, md.len, mem, fd);
+		len = get_next_block(&init_mem[md.len], mem, fd, BLOCK_SIZE);
 		md.len += len;
 	}
 	ft_memset(&mem[len], FIRST_BITE, 1);
 	if (len >= MESSAGE_SIZE)
 	{
 		permutation((unsigned int *) mem, &md);
-		md.len += get_next_block(init_mem, md.len, mem, fd);
+		md.len += get_next_block(&init_mem[md.len], mem, fd, BLOCK_SIZE);
 	}
-	set_memory_length(mem, md.len);
+	set_memory_length(&mem[MESSAGE_SIZE], md.len, 1);
 	permutation((unsigned int *) mem, &md);
 	return get_result(&md);
 }

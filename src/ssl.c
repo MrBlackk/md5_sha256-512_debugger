@@ -12,12 +12,6 @@
 
 #include "ssl.h"
 
-char	*sha256(char *mem, int fd)
-{
-    (void)fd; // suppress not used param warning
-	return (ft_strcat(ft_strdup("sha256: "), mem));
-}
-
 void	error_message(char *reason, char *arg)
 {
 	ft_putstr("ft_ssl: ");
