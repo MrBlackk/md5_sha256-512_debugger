@@ -121,8 +121,8 @@ void	result(char *res, unsigned int num, unsigned int str_iter) {
 
 unsigned int	round(t_round round_func, unsigned int mem, t_md *md, int i)
 {
-	return md->b0 + left_rotate(round_func(md->b0, md->c0, md->d0) +
-			+ md->a0 + g_table[i] + mem, g_left_rotation[i]);
+	return md->b + left_rotate(round_func(md->b, md->c, md->d) +
+			+ md->a + g_table[i] + mem, g_left_rotation[i]);
 }
 
 unsigned int	round_result(unsigned int *mem, t_md *md, int i)
@@ -141,25 +141,26 @@ void	permutation(unsigned int *mem, t_md *md)
 {
 	int				i;
 	unsigned int	temp;
+	unsigned int	start_values[4];
 
-	md->a0 = md->a;
-	md->b0 = md->b;
-	md->c0 = md->c;
-	md->d0 = md->d;
+	start_values[0] = md->a;
+	start_values[1] = md->b;
+	start_values[2] = md->c;
+	start_values[3] = md->d;
 	i = 0;
 	while (i < 64)
 	{
 		temp = round_result(mem, md, i);
-		md->a0 = md->d0;
-		md->d0 = md->c0;
-		md->c0 = md->b0;
-		md->b0 = temp;
+		md->a = md->d;
+		md->d = md->c;
+		md->c = md->b;
+		md->b = temp;
 		i++;
 	}
-	md->a += md->a0;
-	md->b += md->b0;
-	md->c += md->c0;
-	md->d += md->d0;
+	md->a += start_values[0];
+	md->b += start_values[1];
+	md->c += start_values[2];
+	md->d += start_values[3];
 }
 
 void	set_memory_length(char *full_mem, size_t length) {

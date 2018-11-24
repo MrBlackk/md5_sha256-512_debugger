@@ -35,10 +35,6 @@ struct	s_md
 	unsigned int	b;
 	unsigned int	c;
 	unsigned int	d;
-	unsigned int	a0;
-	unsigned int	b0;
-	unsigned int	c0;
-	unsigned int	d0;
 	size_t			len;
 };
 
