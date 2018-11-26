@@ -68,19 +68,120 @@ void	add_start_values(unsigned int start_values[8], t_sha *sha)
 	sha->h += start_values[7];
 }
 
-void	perm(unsigned int *mem, t_sha *sha)
+void	debug_vars(t_sha *sha)
 {
-	unsigned int	i;
-	unsigned int	start_values[8];
+	ft_printf("%X ", sha->a);
+	ft_printf("%X ", sha->b);
+	ft_printf("%X ", sha->c);
+	ft_printf("%X ", sha->d);
+	ft_printf("%X ", sha->e);
+	ft_printf("%X ", sha->f);
+	ft_printf("%X ", sha->g);
+	ft_printf("%X\n", sha->h);
+}
+
+unsigned int	right_rotate(unsigned int x, int n)
+{
+	return (x >> n) | (x << (32 - n));
+}
+
+unsigned int	schedule_rotates(unsigned int num, int x, int y, int z)
+{
+	return right_rotate(num, x) ^ right_rotate(num, y) ^ (num >> z);
+}
+
+unsigned int			reverse_bytes(unsigned int num, int size)
+{
+	unsigned int	reverse_num;
+	int				i;
 
 	i = 0;
+	reverse_num = 0;
+	while (i < size){
+		reverse_num |= ((num >> 8 * i) & 255) << 8 * (size - i - 1);
+		i++;
+	}
+	return (reverse_num);
+}
+
+void	prepare_message_schedule(unsigned int *mem, unsigned int *schedule)
+{
+	unsigned char	i;
+	unsigned int	sc0;
+	unsigned int	sc1;
+
+	i = 0;
+	while (i < 16)
+	{
+		schedule[i] = reverse_bytes(mem[i], 4);
+		i++;
+	}
+	while (i < 64)
+	{
+		sc0 = schedule_rotates(schedule[i - 15], 7, 18, 3);
+		sc1 = schedule_rotates(schedule[i - 2], 17, 19, 10);
+		schedule[i] = sc1 + schedule[i - 7] + sc0 + schedule[i - 16];
+		i++;
+	}
+}
+
+unsigned int	sum(unsigned int num, int x, int y, int z)
+{
+	return right_rotate(num, x) ^ right_rotate(num, y) ^ right_rotate(num, z);
+}
+
+unsigned int	ch(unsigned int x, unsigned int y, unsigned int z)
+{
+	return (x & y) ^ (~x & z);
+}
+
+unsigned int	maj(unsigned int x, unsigned int y, unsigned int z)
+{
+	return (x & y) ^ (x & z) ^ (y & z);
+}
+void	perm(unsigned int *mem, t_sha *sha)
+{
+	unsigned char	i;
+	unsigned int	start_values[8];
+	unsigned int	schedule[64];
+	unsigned int	temp1;
+	unsigned int	temp2;
+
+	i = 0;
+	prepare_message_schedule(mem, schedule);
 	save_start_values(start_values, sha);
 	while (i < 64)
 	{
-
+		temp1 = sha->h + sum(sha->e, 6, 11, 25) + ch(sha->e, sha->f, sha->g) +
+				+ g_sha256_const[i] + schedule[i];
+		temp2 = sum(sha->a, 2, 13, 22) + maj(sha->a, sha->b, sha->c);
+		sha->h = sha->g;
+		sha->g = sha->f;
+		sha->f = sha->e;
+		sha->e = sha->d + temp1;
+		sha->d = sha->c;
+		sha->c = sha->b;
+		sha->b = sha->a;
+		sha->a = temp1 + temp2;
 		i++;
 	}
 	add_start_values(start_values, sha);
+}
+
+char 	*get_result_sha(t_sha *sha)
+{
+	char	res[SHA256_LENGTH + 1];
+
+	ft_bzero(&res, SHA256_LENGTH + 1);
+	result(res, sha->a, 0, 0);
+	result(res, sha->b, 8, 0);
+	result(res, sha->c, 16, 0);
+	result(res, sha->d, 24, 0);
+	result(res, sha->e, 32, 0);
+	result(res, sha->f, 40, 0);
+	result(res, sha->g, 48, 0);
+	result(res, sha->h, 56, 0);
+	return ft_strdup(res);
 }
 
 char	*sha256(char *init_mem, int fd)
@@ -94,18 +195,17 @@ char	*sha256(char *init_mem, int fd)
 	len = sha.len;
 	while (len == BLOCK_SIZE)
 	{
-//		permutation((unsigned int *) mem, &md);
+		perm((unsigned int *) mem, &sha);
 		len = get_next_block(&init_mem[sha.len], mem, fd, BLOCK_SIZE);
 		sha.len += len;
 	}
 	ft_memset(&mem[len], FIRST_BITE, 1);
 	if (len >= MESSAGE_SIZE)
 	{
-//		permutation((unsigned int *) mem, &md);
+		perm((unsigned int *) mem, &sha);
 		sha.len += get_next_block(&init_mem[sha.len], mem, fd, BLOCK_SIZE);
 	}
 	set_memory_length(&mem[MESSAGE_SIZE], sha.len, 0);
-	debug(mem, 16);
-//	permutation((unsigned int *) mem, &md);
-	return NULL;
+	perm((unsigned int *) mem, &sha);
+	return get_result_sha(&sha);
 }

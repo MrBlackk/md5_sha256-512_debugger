@@ -16,6 +16,7 @@
 # include "libft.h"
 # include "common.h"
 
+# define SHA256_LENGTH 64
 
 typedef struct s_sha	t_sha;
 

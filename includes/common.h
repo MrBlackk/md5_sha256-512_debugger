@@ -22,6 +22,6 @@
 
 unsigned int	get_next_block(char *src, char *dest, int fd, unsigned int block_size);
 void	set_memory_length(char *init_mem, size_t length, char is_little_endian);
-void    debug(void *mem, size_t len);
-
+void    debug(void *mem, size_t len, char is_hex);
+void	result(char *res, unsigned int num, unsigned int str_iter, char is_little_endian);
 #endif

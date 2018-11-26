@@ -97,8 +97,6 @@ void	set_memory_length(char *init_mem, size_t length, char is_little_endian)
 	}
 }
 
-
-
 void    print_memory(void *memory, size_t len) {
 	size_t i = 0;
 	unsigned char *bytes = (unsigned char*)memory;
@@ -112,17 +110,58 @@ void    print_memory(void *memory, size_t len) {
 	ft_printf("\n");
 }
 
-void    print_blocks(void *memory, size_t len) {
+void    print_blocks(void *memory, size_t len, char is_hex) {
 	size_t i = 0;
+	size_t j;
+	size_t k;
+
 	unsigned int *nums = (unsigned int*)memory;
+	unsigned char *bytes = (unsigned char*)memory;
+	j = 0;
 	while (i < len) {
-		ft_printf("[%u] %u\n", i, nums[i]);
+		if (is_hex) {
+			k = 0;
+			ft_printf("[%u] ", i);
+			while (k < 4)
+			{
+				ft_printf("%.2X", bytes[j++]);
+				k++;
+			}
+			ft_printf("\n");
+		} else {
+			ft_printf("[%u] %u\n", i, nums[i]);
+		}
 		i++;
 	}
 	ft_printf("\n");
 }
 
-void    debug(void *mem, size_t len) {
+void    debug(void *mem, size_t len, char is_hex) {
 	print_memory(mem, len * 4);
-	print_blocks(mem, len);
+	print_blocks(mem, len, is_hex);
+}
+
+
+unsigned int	get_hex(unsigned int num) {
+	if (num > 9)
+		return num + 'a' - 10;
+	else
+		return num + '0';
+}
+
+void	result(char *res, unsigned int num, unsigned int str_iter, char is_little_endian) {
+	unsigned int	i;
+	unsigned int	byte;
+
+	i = 0;
+	while(i < 32)
+	{
+		if (is_little_endian)
+			byte = (num >> i) & 255;
+		else
+			byte = (num >> 24 - i) & 255;
+		res[str_iter++] = (char) get_hex(byte / 16);
+		res[str_iter++] = (char) get_hex(byte % 16);
+		i += 8;
+	}
 }

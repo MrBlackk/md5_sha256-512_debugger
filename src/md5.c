@@ -69,27 +69,6 @@ unsigned int	left_rotate(unsigned int x, int n)
 	return (x << n) | (x >> (32 - n));
 }
 
-unsigned int	get_hex(unsigned int num) {
-	if (num > 9)
-		return num + 'a' - 10;
-	else
-		return num + '0';
-}
-
-void	result(char *res, unsigned int num, unsigned int str_iter) {
-	unsigned int	i;
-	unsigned int	byte;
-
-	i = 0;
-	while(i < 32)
-	{
-		byte = (num & (255 << i)) >> i;
-		res[str_iter++] = (char) get_hex(byte / 16);
-		res[str_iter++] = (char) get_hex(byte % 16);
-		i += 8;
-	}
-}
-
 unsigned int	md5_round(t_round round_func, unsigned int mem, t_md *md, int i)
 {
 	return md->b + left_rotate(round_func(md->b, md->c, md->d) +
@@ -147,10 +126,10 @@ char 	*get_result(t_md *md)
 	char	res[MD5_LENGTH + 1];
 
 	ft_bzero(&res, MD5_LENGTH + 1);
-	result(res, md->a, 0);
-	result(res, md->b, 8);
-	result(res, md->c, 16);
-	result(res, md->d, 24);
+	result(res, md->a, 0, 1);
+	result(res, md->b, 8, 1);
+	result(res, md->c, 16, 1);
+	result(res, md->d, 24, 1);
 	return ft_strdup(res);
 }
 
