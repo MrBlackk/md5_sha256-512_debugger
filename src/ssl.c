@@ -155,27 +155,157 @@ void	parse_args(int argc, char **argv, t_digest *digest)
 	}
 }
 
-int		main(int argc, char **argv)
+void	parse(int argc, char **argv)
 {
-	int	i;
+	int i;
 	int	num_digests;
 
 	num_digests = sizeof(g_digests) / sizeof(t_digest);
-	if (argc >= 2)
+	i = 0;
+	while (i < num_digests)
 	{
-		i = 0;
-		while (i < num_digests)
-		{
-			if (ft_strequ(argv[1], g_digests[i].name))
-				break;
-			i++;
-		}
-		if (i != num_digests)
-			parse_args(argc, argv, &g_digests[i]);
-		else
-			error_command(argv[1]);
+		if (ft_strequ(argv[1], g_digests[i].name))
+			break;
+		i++;
 	}
+	if (i != num_digests)
+		parse_args(argc, argv, &g_digests[i]);
 	else
-		ft_putendl("usage: ft_ssl command [command opts] [command args]");
+		error_command(argv[1]);
+}
+
+
+char is_white_space(char c)
+{
+	if (c == 32 || (c >= 9 && c <= 13))
+		return 1;
+	return 0;
+}
+
+int 	count_args(char *line)
+{
+	int num;
+	int is_arg;
+	int is_q;
+
+	num = 0;
+	is_arg = 0;
+	is_q = 0;
+	while (*line)
+	{
+		if (is_white_space(*line) && !is_q)
+			is_arg = 0;
+		else if (*line == '"' && is_q)
+			is_q = 0;
+		else if (!is_q)
+		{
+			if (*line == '"')
+				is_q = 1;
+			if (is_arg == 0)
+				num++;
+			is_arg = 1;
+		}
+		line++;
+	}
+	return num;
+}
+
+void	skip_char(char const *s, int *iter)
+{
+	while (s[*iter] && is_white_space(s[*iter]))
+		(*iter)++;
+}
+
+unsigned int	count_length(char const *s)
+{
+	unsigned int len;
+	int is_q;
+
+	len = 0;
+	is_q = 0;
+	if (*s && *s == '"')
+		is_q = 1;
+	while (*s && (!is_white_space(*s) || is_q))
+	{
+		len++;
+		s++;
+		if (*s && *s == '"')
+			is_q = 0;
+	}
+	return (len);
+}
+
+char **get_args_array(int argc)
+{
+	char **words;
+
+	words = (char **)malloc(sizeof(char *) * (argc + 1));
+	if (words == NULL)
+		return NULL;
+	words[0] = ft_strdup("ft_ssl");
+	if (words[0] == NULL)
+		return NULL;
+	words[argc] = NULL;
+	return words;
+}
+
+char **split_arg_line(char *line)
+{
+	int 	i;
+	int 	i_arg;
+	int		argc;
+	char	**words;
+	int		j;
+
+	argc = count_args(line) + 1;
+	if ((words = get_args_array(argc)) == NULL)
+		return NULL;
+	i = 0;
+	i_arg = 1;
+	while (i_arg < argc && line[i])
+	{
+		skip_char(line, &i);
+		if ((words[i_arg] = ft_strnew(count_length(&line[i]))) == NULL)
+			return (NULL);
+		j = 0;
+		while (line[i] && !is_white_space(line[i]))
+		{
+			if (line[i] != '"')
+				words[i_arg][j++] = line[i++];
+			else
+				i++;
+		}
+		words[i_arg++][j] = '\0';
+		i++;
+	}
+	return (words);
+}
+
+int		main(int argc, char **argv)
+{
+	char	*line;
+	int 	ret;
+	char 	**args;
+	int 	num;
+
+	if (argc >= 2)
+		parse(argc, argv);
+	else
+	{
+		while (1)
+		{
+			ft_putstr("ft_ssl> ");
+			ret = get_next_line(0, &line);
+			if (ret <= 0)
+				break;
+			args = split_arg_line(line);
+			num = 0;
+			while (args[num] != NULL)
+				num++;
+			parse(num, args);
+			ft_strdel(&line);
+			//todo:: free args
+		}
+	}
 	return (0);
 }
