@@ -189,7 +189,9 @@ void	sha512_permutations(char *init_mem, int fd, t_sh *sh)
 		perm512((size_t *) mem, sh);
 		sh->len += get_next_block(&init_mem[sh->len], mem, fd, SHA512_BLOCK);
 	}
-	set_memory_length(&mem[SHA512_MESSAGE], sh->len, 8, 0);
+//	sh->len = 0xffffffffffffffff; //todo: could be possilbe to set 128 bit number
+	set_memory_length(&mem[SHA512_MESSAGE + 8], sh->len, 8, 0);
+//	debug(mem, 32, 1);
 	perm512((size_t *) mem, sh);
 }
 
