@@ -21,10 +21,10 @@ void	error_message(char *reason, char *arg)
 	ft_putendl("'");
 }
 
-void	error_exit(char *reason, char *arg)
+int		error_exit(char *reason, char *arg)
 {
 	error_message(reason, arg);
-	exit(1);
+	return -1;
 }
 
 void	error_command(char *command)
@@ -109,7 +109,7 @@ int		parse_options(int argc, char **argv, t_option *opt, t_digest *digest)
 	while (i < argc && argv[i][0] == '-')
 	{
 		if (ft_strlen(argv[i]) != 2)
-			error_exit("Wrong option used", argv[i]);
+			return error_exit("Wrong option used", argv[i]);
 		option = argv[i][1];
 		if (option == 'p')
 			handle_stdin(digest, opt);
@@ -120,7 +120,7 @@ int		parse_options(int argc, char **argv, t_option *opt, t_digest *digest)
 		else if (option == 's' && i + 1 < argc)
 			handle_string(argv[++i], opt, digest);
 		else
-			error_exit("Wrong option used", argv[i]);
+			return error_exit("Wrong option used", argv[i]);
 		i++;
 	}
 	return i;
@@ -140,7 +140,7 @@ void	parse_args(int argc, char **argv, t_digest *digest)
 		ft_putendl(hash);
 		ft_strdel(&hash);
 	}
-	while (i < argc)
+	while (i != -1 && i < argc)
 	{
 		fd = open(argv[i], O_RDONLY);
 		if (fd < 0)
@@ -249,6 +249,31 @@ char **get_args_array(int argc)
 	return words;
 }
 
+char	*save_arg( char *line, int *i)
+{
+	int j;
+	char *arg;
+	int is_q;
+
+	if ((arg = ft_strnew(count_length(&line[*i]))) == NULL)
+		return NULL;
+	j = 0;
+	is_q = 0;
+	if (line[*i] && line[*i] == '"')
+		is_q = 1;
+	while (line[*i] && (!is_white_space(line[*i]) || is_q))
+	{
+		if (line[*i] != '"')
+			arg[j++] = line[(*i)++];
+		else
+			(*i)++;
+		if (line[*i] && line[*i] == '"')
+			is_q = 0;
+	}
+	arg[j] = '\0';
+	return arg;
+}
+
 char **split_arg_line(char *line)
 {
 	int 	i;
@@ -265,20 +290,21 @@ char **split_arg_line(char *line)
 	while (i_arg < argc && line[i])
 	{
 		skip_char(line, &i);
-		if ((words[i_arg] = ft_strnew(count_length(&line[i]))) == NULL)
-			return (NULL);
-		j = 0;
-		while (line[i] && !is_white_space(line[i]))
-		{
-			if (line[i] != '"')
-				words[i_arg][j++] = line[i++];
-			else
-				i++;
-		}
-		words[i_arg++][j] = '\0';
+		words[i_arg] = save_arg(line, &i);
+		i_arg++;
 		i++;
 	}
 	return (words);
+}
+
+void 	free_args(char **args, int num)
+{
+	int	i;
+
+	i = 0;
+	while (i < num)
+		free(args[i++]);
+	free(args);
 }
 
 int		main(int argc, char **argv)
@@ -304,7 +330,7 @@ int		main(int argc, char **argv)
 				num++;
 			parse(num, args);
 			ft_strdel(&line);
-			//todo:: free args
+			free_args(args, num);
 		}
 	}
 	return (0);
