@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   common.h                                           :+:      :+:    :+:   */
+/*   sha512.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vchornyi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,19 +10,29 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef COMMON_H
-# define COMMON_H
+#ifndef SHA512_H
+# define SHA512_H
 
 # include "libft.h"
+# include "common.h"
 
-# define BITS_IN_BYTE 8
-# define BLOCK_SIZE 64
-# define MESSAGE_SIZE 56
-# define FIRST_BITE 128
+# define SHA512_LENGTH 128
+# define SHA512_BLOCK 128
+# define SHA512_MESSAGE 120
 
-unsigned int	get_next_block(char *src, char *dest, int fd, unsigned int block_size);
-void	set_memory_length(char *init_mem, size_t length, int size, char is_little_endian);
-void    debug(void *mem, size_t len, char is_hex);
-void	result(char *res, size_t num, unsigned int str_iter, char is_little_endian, int size);
-size_t			reverse_bytes(size_t num, int size);
+typedef struct s_sh	t_sh;
+
+struct	s_sh
+{
+	size_t	a;
+	size_t	b;
+	size_t	c;
+	size_t	d;
+	size_t	e;
+	size_t	f;
+	size_t	g;
+	size_t	h;
+	size_t	len;
+};
+
 #endif

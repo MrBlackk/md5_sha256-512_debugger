@@ -102,19 +102,6 @@ unsigned int	schedule_rotates(unsigned int num, int x, int y, int z)
 	return right_rotate(num, x) ^ right_rotate(num, y) ^ (num >> z);
 }
 
-unsigned int			reverse_bytes(unsigned int num, int size)
-{
-	unsigned int	reverse_num;
-	int				i;
-
-	i = 0;
-	reverse_num = 0;
-	while (i < size){
-		reverse_num |= ((num >> 8 * i) & 255) << 8 * (size - i - 1);
-		i++;
-	}
-	return (reverse_num);
-}
 
 void	prepare_message_schedule(unsigned int *mem, unsigned int *schedule)
 {
@@ -125,7 +112,7 @@ void	prepare_message_schedule(unsigned int *mem, unsigned int *schedule)
 	i = 0;
 	while (i < 16)
 	{
-		schedule[i] = reverse_bytes(mem[i], 4);
+		schedule[i] = (unsigned int) reverse_bytes(mem[i], 4);
 		i++;
 	}
 	while (i < 64)
@@ -185,14 +172,14 @@ char 	*get_result_sha256(t_sha *sha)
 	char	res[SHA256_LENGTH + 1];
 
 	ft_bzero(&res, SHA256_LENGTH + 1);
-	result(res, sha->a, 0, 0);
-	result(res, sha->b, 8, 0);
-	result(res, sha->c, 16, 0);
-	result(res, sha->d, 24, 0);
-	result(res, sha->e, 32, 0);
-	result(res, sha->f, 40, 0);
-	result(res, sha->g, 48, 0);
-	result(res, sha->h, 56, 0);
+	result(res, sha->a, 0, 0, 32);
+	result(res, sha->b, 8, 0, 32);
+	result(res, sha->c, 16, 0, 32);
+	result(res, sha->d, 24, 0, 32);
+	result(res, sha->e, 32, 0, 32);
+	result(res, sha->f, 40, 0, 32);
+	result(res, sha->g, 48, 0, 32);
+	result(res, sha->h, 56, 0, 32);
 	return ft_strdup(res);
 }
 
@@ -201,13 +188,13 @@ char 	*get_result_sha224(t_sha *sha)
 	char	res[SHA224_LENGTH + 1];
 
 	ft_bzero(&res, SHA224_LENGTH + 1);
-	result(res, sha->a, 0, 0);
-	result(res, sha->b, 8, 0);
-	result(res, sha->c, 16, 0);
-	result(res, sha->d, 24, 0);
-	result(res, sha->e, 32, 0);
-	result(res, sha->f, 40, 0);
-	result(res, sha->g, 48, 0);
+	result(res, sha->a, 0, 0, 32);
+	result(res, sha->b, 8, 0, 32);
+	result(res, sha->c, 16, 0, 32);
+	result(res, sha->d, 24, 0, 32);
+	result(res, sha->e, 32, 0, 32);
+	result(res, sha->f, 40, 0, 32);
+	result(res, sha->g, 48, 0, 32);
 	return ft_strdup(res);
 }
 
@@ -230,7 +217,7 @@ void	sha_permutations(char *init_mem, int fd, t_sha *sha)
 		perm((unsigned int *) mem, sha);
 		sha->len += get_next_block(&init_mem[sha->len], mem, fd, BLOCK_SIZE);
 	}
-	set_memory_length(&mem[MESSAGE_SIZE], sha->len, 0);
+	set_memory_length(&mem[MESSAGE_SIZE], sha->len, 8, 0);
 	perm((unsigned int *) mem, sha);
 }
 

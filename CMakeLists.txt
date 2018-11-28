@@ -9,6 +9,7 @@ include_directories(libft/includes)
 add_executable(ft_ssl
         includes/md5.h
         includes/sha256.h
+        includes/sha512.h
         includes/common.h
         includes/ssl.h
         libft/includes/libft.h
@@ -99,4 +100,5 @@ add_executable(ft_ssl
         src/md5.c
         src/common.c
         src/sha256.c
+        src/sha512.c
         src/ssl.c)

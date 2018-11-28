@@ -74,7 +74,7 @@ unsigned int	get_next_block(char *src, char *dest, int fd, unsigned int block_si
 	return length;
 }
 
-void	set_memory_length(char *init_mem, size_t length, char is_little_endian)
+void	set_memory_length(char *init_mem, size_t length, int size, char is_little_endian)
 {
 	int		i;
 	char	byte;
@@ -85,11 +85,11 @@ void	set_memory_length(char *init_mem, size_t length, char is_little_endian)
 	i = 0;
 	value = length * BITS_IN_BYTE;
 	mem = init_mem;
-	while (i < 8)
+	while (i < size)
 	{
 		shift = BITS_IN_BYTE * i;
 		if (!is_little_endian)
-			shift = BITS_IN_BYTE * (7 - i);
+			shift = BITS_IN_BYTE * (size - 1 - i);
 		byte = (char)(value >> shift);
 		ft_memset(mem, byte, 1);
 		mem++;
@@ -142,26 +142,40 @@ void    debug(void *mem, size_t len, char is_hex) {
 }
 
 
-unsigned int	get_hex(unsigned int num) {
+size_t	get_hex(size_t num) {
 	if (num > 9)
 		return num + 'a' - 10;
 	else
 		return num + '0';
 }
 
-void	result(char *res, unsigned int num, unsigned int str_iter, char is_little_endian) {
+void	result(char *res, size_t num, unsigned int str_iter, char is_little_endian, int size) {
 	unsigned int	i;
-	unsigned int	byte;
+	size_t	byte;
 
 	i = 0;
-	while(i < 32)
+	while(i < size)
 	{
 		if (is_little_endian)
 			byte = (num >> i) & 255;
 		else
-			byte = (num >> 24 - i) & 255;
+			byte = (num >> size - 8 - i) & 255;
 		res[str_iter++] = (char) get_hex(byte / 16);
 		res[str_iter++] = (char) get_hex(byte % 16);
 		i += 8;
 	}
+}
+
+size_t			reverse_bytes(size_t num, int size)
+{
+	size_t	reverse_num;
+	int				i;
+
+	i = 0;
+	reverse_num = 0;
+	while (i < size){
+		reverse_num |= ((num >> 8 * i) & 255) << 8 * (size - i - 1);
+		i++;
+	}
+	return (reverse_num);
 }

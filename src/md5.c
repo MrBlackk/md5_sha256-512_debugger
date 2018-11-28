@@ -126,10 +126,10 @@ char 	*get_result(t_md *md)
 	char	res[MD5_LENGTH + 1];
 
 	ft_bzero(&res, MD5_LENGTH + 1);
-	result(res, md->a, 0, 1);
-	result(res, md->b, 8, 1);
-	result(res, md->c, 16, 1);
-	result(res, md->d, 24, 1);
+	result(res, md->a, 0, 1, 32);
+	result(res, md->b, 8, 1, 32);
+	result(res, md->c, 16, 1, 32);
+	result(res, md->d, 24, 1, 32);
 	return ft_strdup(res);
 }
 
@@ -154,7 +154,7 @@ char	*md5(char *init_mem, int fd)
 		permutation((unsigned int *) mem, &md);
 		md.len += get_next_block(&init_mem[md.len], mem, fd, BLOCK_SIZE);
 	}
-	set_memory_length(&mem[MESSAGE_SIZE], md.len, 1);
+	set_memory_length(&mem[MESSAGE_SIZE], md.len, 8, 1);
 	permutation((unsigned int *) mem, &md);
 	return get_result(&md);
 }
