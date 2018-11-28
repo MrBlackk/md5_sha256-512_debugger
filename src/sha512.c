@@ -43,6 +43,17 @@ void	set_initial_values_sha512(t_sh *sh)
 	sh->g = 0x1f83d9abfb41bd6b;
 	sh->h = 0x5be0cd19137e2179;
 }
+void	set_initial_values_sha384(t_sh *sh)
+{
+	sh->a = 0xcbbb9d5dc1059ed8;
+	sh->b = 0x629a292a367cd507;
+	sh->c = 0x9159015a3070dd17;
+	sh->d = 0x152fecd8f70e5939;
+	sh->e = 0x67332667ffc00b31;
+	sh->f = 0x8eb44a8768581511;
+	sh->g = 0xdb0c2e0d64f98fa7;
+	sh->h = 0x47b5481dbefa4fa4;
+}
 
 size_t	right_rotate64(size_t x, int n)
 {
@@ -199,6 +210,20 @@ char *get_result_sha512(t_sh *sh)
 	return ft_strdup(res);
 }
 
+char *get_result_sha384(t_sh *sh)
+{
+	char	res[SHA384_LENGTH + 1];
+
+	ft_bzero(&res, SHA384_LENGTH + 1);
+	result(res, sh->a, 0, 0, 64);
+	result(res, sh->b, 16, 0, 64);
+	result(res, sh->c, 32, 0, 64);
+	result(res, sh->d, 48, 0, 64);
+	result(res, sh->e, 64, 0, 64);
+	result(res, sh->f, 80, 0, 64);
+	return ft_strdup(res);
+}
+
 char	*sha512(char *mem, int fd)
 {
 	t_sh	sh;
@@ -206,4 +231,13 @@ char	*sha512(char *mem, int fd)
 	set_initial_values_sha512(&sh);
 	sha512_permutations(mem, fd, &sh);
 	return get_result_sha512(&sh);
+}
+
+char	*sha384(char *mem, int fd)
+{
+	t_sh	sh;
+
+	set_initial_values_sha384(&sh);
+	sha512_permutations(mem, fd, &sh);
+	return get_result_sha384(&sh);
 }

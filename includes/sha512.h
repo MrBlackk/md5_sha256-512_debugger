@@ -17,6 +17,7 @@
 # include "common.h"
 
 # define SHA512_LENGTH 128
+# define SHA384_LENGTH 96
 # define SHA512_BLOCK 128
 # define SHA512_MESSAGE 120
 
