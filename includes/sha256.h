@@ -17,6 +17,7 @@
 # include "common.h"
 
 # define SHA256_LENGTH 64
+# define SHA224_LENGTH 56
 
 typedef struct s_sha	t_sha;
 

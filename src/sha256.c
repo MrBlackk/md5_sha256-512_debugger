@@ -32,7 +32,7 @@ unsigned int g_sha256_const[64] =
 	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-static void	set_initial_values(t_sha *sha)
+static void	set_initial_values_sha256(t_sha *sha)
 {
 	sha->a = 0x6a09e667;
 	sha->b = 0xbb67ae85;
@@ -42,6 +42,18 @@ static void	set_initial_values(t_sha *sha)
 	sha->f = 0x9b05688c;
 	sha->g = 0x1f83d9ab;
 	sha->h = 0x5be0cd19;
+}
+
+static void	set_initial_values_sha224(t_sha *sha)
+{
+	sha->a = 0xc1059ed8;
+	sha->b = 0x367cd507;
+	sha->c = 0x3070dd17;
+	sha->d = 0xf70e5939;
+	sha->e = 0xffc00b31;
+	sha->f = 0x68581511;
+	sha->g = 0x64f98fa7;
+	sha->h = 0xbefa4fa4;
 }
 
 void	save_start_values(unsigned int start_values[8], t_sha *sha)
@@ -168,7 +180,7 @@ void	perm(unsigned int *mem, t_sha *sha)
 	add_start_values(start_values, sha);
 }
 
-char 	*get_result_sha(t_sha *sha)
+char 	*get_result_sha256(t_sha *sha)
 {
 	char	res[SHA256_LENGTH + 1];
 
@@ -184,28 +196,58 @@ char 	*get_result_sha(t_sha *sha)
 	return ft_strdup(res);
 }
 
-char	*sha256(char *init_mem, int fd)
+char 	*get_result_sha224(t_sha *sha)
+{
+	char	res[SHA224_LENGTH + 1];
+
+	ft_bzero(&res, SHA224_LENGTH + 1);
+	result(res, sha->a, 0, 0);
+	result(res, sha->b, 8, 0);
+	result(res, sha->c, 16, 0);
+	result(res, sha->d, 24, 0);
+	result(res, sha->e, 32, 0);
+	result(res, sha->f, 40, 0);
+	result(res, sha->g, 48, 0);
+	return ft_strdup(res);
+}
+
+void	sha_permutations(char *init_mem, int fd, t_sha *sha)
 {
 	char	mem[BLOCK_SIZE];
-	t_sha	sha;
 	size_t	len;
 
-	set_initial_values(&sha);
-	sha.len = get_next_block(&init_mem[0], mem, fd, BLOCK_SIZE);
-	len = sha.len;
+	sha->len = get_next_block(&init_mem[0], mem, fd, BLOCK_SIZE);
+	len = sha->len;
 	while (len == BLOCK_SIZE)
 	{
-		perm((unsigned int *) mem, &sha);
-		len = get_next_block(&init_mem[sha.len], mem, fd, BLOCK_SIZE);
-		sha.len += len;
+		perm((unsigned int *) mem, sha);
+		len = get_next_block(&init_mem[sha->len], mem, fd, BLOCK_SIZE);
+		sha->len += len;
 	}
 	ft_memset(&mem[len], FIRST_BITE, 1);
 	if (len >= MESSAGE_SIZE)
 	{
-		perm((unsigned int *) mem, &sha);
-		sha.len += get_next_block(&init_mem[sha.len], mem, fd, BLOCK_SIZE);
+		perm((unsigned int *) mem, sha);
+		sha->len += get_next_block(&init_mem[sha->len], mem, fd, BLOCK_SIZE);
 	}
-	set_memory_length(&mem[MESSAGE_SIZE], sha.len, 0);
-	perm((unsigned int *) mem, &sha);
-	return get_result_sha(&sha);
+	set_memory_length(&mem[MESSAGE_SIZE], sha->len, 0);
+	perm((unsigned int *) mem, sha);
+}
+
+char	*sha256(char *init_mem, int fd)
+{
+	t_sha	sha;
+
+	set_initial_values_sha256(&sha);
+	sha_permutations(init_mem, fd, &sha);
+	return get_result_sha256(&sha);
+}
+
+char	*sha224(char *init_mem, int fd)
+{
+	t_sha	sha;
+
+	set_initial_values_sha224(&sha);
+	sha_permutations(init_mem, fd, &sha);
+	return get_result_sha224(&sha);
 }
