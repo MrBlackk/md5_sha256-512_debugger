@@ -21,13 +21,9 @@
 # define SHA512_MESSAGE 112
 # define SHA384_LENGTH 96
 
-typedef struct s_buf64	t_buf64;
-
-struct	s_buf64
-{
-	size_t			buf[8];
-	unsigned char	message_length;
-	size_t			len;
-};
+void	prepare_message_schedule64(size_t *mem, size_t *schedule);
+void	save_start_values64(size_t *start_values, t_buf64 *sh);
+void	add_start_values512(size_t *start_values, t_buf64 *sh);
+void	permutation512(size_t *mem, t_buf64 *s);
 
 #endif

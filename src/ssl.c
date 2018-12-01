@@ -12,21 +12,6 @@
 
 #include "ssl.h"
 
-void	error_message(char *reason, char *arg)
-{
-	ft_putstr("ft_ssl: ");
-	ft_putstr(reason);
-	ft_putstr(" '");
-	ft_putstr(arg);
-	ft_putendl("'");
-}
-
-int		error_return(char *reason, char *arg)
-{
-	error_message(reason, arg);
-	return -1;
-}
-
 void	error_command(char *command)
 {
 	int	i;

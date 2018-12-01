@@ -12,7 +12,7 @@
 
 #include "md5.h"
 
-unsigned int g_md5_const[64] =
+static unsigned int g_md5_const[64] =
 {
 	0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 	0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
@@ -32,7 +32,7 @@ unsigned int g_md5_const[64] =
 	0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
 };
 
-unsigned int g_md5_left_rotation[64] =
+static unsigned int g_md5_left_rotation[64] =
 {
 	7, 12, 17, 22, 7, 12, 17, 22,
 	7, 12, 17, 22, 7, 12, 17, 22,
@@ -44,50 +44,13 @@ unsigned int g_md5_left_rotation[64] =
 	6, 10, 15, 21, 6, 10, 15, 21
 };
 
-unsigned int	first_round(unsigned int x, unsigned int y, unsigned int z)
+static unsigned int	md5_round(t_round f, unsigned int mem, t_buf32 *md, int i)
 {
-    return (x & y) | ((~x) & z);
+	return (md->bf[1] + left_rotate(f(md->bf[1], md->bf[2], md->bf[3]) +
+				md->bf[0] + g_md5_const[i] + mem, g_md5_left_rotation[i]));
 }
 
-unsigned int	second_round(unsigned int x, unsigned int y, unsigned int z)
-{
-    return (x & z) | ((~z) & y);
-}
-
-unsigned int	third_round(unsigned int x, unsigned int y, unsigned int z)
-{
-    return x ^ y ^ z;
-}
-
-unsigned int	fourth_round(unsigned int x, unsigned int y, unsigned int z)
-{
-    return y ^ ((~z) | x);
-}
-
-unsigned int	left_rotate(unsigned int x, int n)
-{
-	return (x << n) | (x >> (32 - n));
-}
-
-unsigned int	md5_round(t_round round_func, unsigned int mem, t_buf32 *md, int i)
-{
-	return md->buf[1] + left_rotate(round_func(md->buf[1], md->buf[2], md->buf[3]) +
-			+ md->buf[0] + g_md5_const[i] + mem, g_md5_left_rotation[i]);
-}
-
-unsigned int	round_result(unsigned int *mem, t_buf32 *md, int i)
-{
-	if (i < 16)
-		return md5_round(first_round, mem[i], md, i);
-	else if (i >= 16 && i < 32)
-		return md5_round(second_round, mem[(5 * i + 1) % 16], md, i);
-	else if (i >= 32 && i < 48)
-		return md5_round(third_round, mem[(3 * i + 5) % 16], md, i);
-	else
-		return md5_round(fourth_round, mem[(7 * i) % 16], md, i);
-}
-
-void	permutation_md5(unsigned int *mem, t_buf32 *md)
+static void			permutation_md5(unsigned int *mem, t_buf32 *md)
 {
 	unsigned int	i;
 	unsigned int	temp;
@@ -97,33 +60,40 @@ void	permutation_md5(unsigned int *mem, t_buf32 *md)
 	i = 0;
 	while (i < 64)
 	{
-		temp = round_result(mem, md, i);
-		md->buf[0] = md->buf[3];
-		md->buf[3] = md->buf[2];
-		md->buf[2] = md->buf[1];
-		md->buf[1] = temp;
+		if (i < 16)
+			temp = md5_round(first_round, mem[i], md, i);
+		else if (i >= 16 && i < 32)
+			temp = md5_round(second_round, mem[(5 * i + 1) % 16], md, i);
+		else if (i >= 32 && i < 48)
+			temp = md5_round(third_round, mem[(3 * i + 5) % 16], md, i);
+		else
+			temp = md5_round(fourth_round, mem[(7 * i) % 16], md, i);
+		md->bf[0] = md->bf[3];
+		md->bf[3] = md->bf[2];
+		md->bf[2] = md->bf[1];
+		md->bf[1] = temp;
 		i++;
 	}
 	add_start_values(start_values, md);
 }
 
-static void	set_initial_values_md5(t_buf32 *md)
+static void			set_initial_values_md5(t_buf32 *md)
 {
-	md->buf[0] = 0x67452301;
-	md->buf[1] = 0xefcdab89;
-	md->buf[2] = 0x98badcfe;
-	md->buf[3] = 0x10325476;
+	md->bf[0] = 0x67452301;
+	md->bf[1] = 0xefcdab89;
+	md->bf[2] = 0x98badcfe;
+	md->bf[3] = 0x10325476;
 	md->max_buf = MD5_BUF;
 	md->is_little_endian = TRUE;
 	md->message_length = MD5_LENGTH;
 	md->len = 0;
 }
 
-char	*md5(char *init_mem, int fd)
+char				*md5(char *init_mem, int fd)
 {
-    t_buf32	md;
+	t_buf32	md;
 
 	set_initial_values_md5(&md);
 	permutations(init_mem, fd, &md, &permutation_md5);
-	return get_result(&md);
+	return (get_result(&md));
 }

@@ -14,7 +14,9 @@ NAME = ft_ssl
 FLAGS = -Wall -Wextra -Werror
 INC = -Iincludes/ -I$(LIB_DIR)/includes
 
-SRC_NAME = ssl.c md5.c common.c sha256.c sha512.c
+SRC_NAME = ssl.c md5.c common.c sha256.c sha512.c get_next_block.c error.c \
+            md5_round.c sha256_round.c result.c sha512_schedule.c \
+            sha512_round.c common_permutations.c
 OBJ_NAME = $(SRC_NAME:.c=.o)
 OBJ = $(addprefix $(OBJ_DIR),$(OBJ_NAME))
 

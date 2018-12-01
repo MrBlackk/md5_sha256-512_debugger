@@ -21,4 +21,9 @@
 # define SHA224_LENGTH 56
 # define SHA224_BUF 8
 
+void			prepare_msg_schedule(unsigned int *mem, unsigned int *scd);
+unsigned int	sum(unsigned int num, int x, int y, int z);
+unsigned int	ch(unsigned int x, unsigned int y, unsigned int z);
+unsigned int	maj(unsigned int x, unsigned int y, unsigned int z);
+
 #endif

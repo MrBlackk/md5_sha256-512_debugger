@@ -99,6 +99,14 @@ add_executable(ft_ssl
         libft/srcs/pf_set_flags.c
         src/md5.c
         src/common.c
+        src/common_permutations.c
+        src/result.c
+        src/get_next_block.c
+        src/md5_round.c
+        src/sha256_round.c
+        src/error.c
         src/sha256.c
         src/sha512.c
+        src/sha512_schedule.c
+        src/sha512_round.c
         src/ssl.c)

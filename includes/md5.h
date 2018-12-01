@@ -21,4 +21,10 @@
 
 typedef unsigned int t_round(unsigned int x, unsigned int y, unsigned int z);
 
+unsigned int	first_round(unsigned int x, unsigned int y, unsigned int z);
+unsigned int	second_round(unsigned int x, unsigned int y, unsigned int z);
+unsigned int	third_round(unsigned int x, unsigned int y, unsigned int z);
+unsigned int	fourth_round(unsigned int x, unsigned int y, unsigned int z);
+unsigned int	left_rotate(unsigned int x, int n);
+
 #endif

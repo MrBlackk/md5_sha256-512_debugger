@@ -1,38 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   common.c                                           :+:      :+:    :+:   */
+/*   error.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vchornyi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/24 20:54:55 by vchornyi          #+#    #+#             */
-/*   Updated: 2018/11/24 20:54:56 by vchornyi         ###   ########.fr       */
+/*   Created: 2018/12/01 15:56:43 by vchornyi          #+#    #+#             */
+/*   Updated: 2018/12/01 15:56:44 by vchornyi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "common.h"
 
-unsigned int	right_rotate(unsigned int x, int n)
+void	error_message(char *reason, char *arg)
 {
-	return (x >> n) | (x << (32 - n));
+	ft_putstr("ft_ssl: ");
+	ft_putstr(reason);
+	ft_putstr(" '");
+	ft_putstr(arg);
+	ft_putendl("'");
 }
 
-size_t			right_rotate64(size_t x, int n)
+int		error_return(char *reason, char *arg)
 {
-	return (x >> n) | (x << (64 - n));
+	error_message(reason, arg);
+	return (-1);
 }
 
-size_t			reverse_bytes(size_t num, int size)
+void	error_exit(char *reason, char *arg)
 {
-	size_t	reverse_num;
-	int		i;
-
-	i = 0;
-	reverse_num = 0;
-	while (i < size)
-	{
-		reverse_num |= ((num >> 8 * i) & MAX_BYTE) << 8 * (size - i - 1);
-		i++;
-	}
-	return (reverse_num);
+	error_message(reason, arg);
+	exit(1);
 }
