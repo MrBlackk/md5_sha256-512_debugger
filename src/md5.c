@@ -69,60 +69,61 @@ unsigned int	left_rotate(unsigned int x, int n)
 	return (x << n) | (x >> (32 - n));
 }
 
-unsigned int	md5_round(t_round round_func, unsigned int mem, t_buf32 *buf, int i)
+unsigned int	md5_round(t_round round_func, unsigned int mem, t_buf32 *md, int i)
 {
-	return buf->buf[1] + left_rotate(round_func(buf->buf[1], buf->buf[2], buf->buf[3]) +
-			+ buf->buf[0] + g_md5_const[i] + mem, g_md5_left_rotation[i]);
+	return md->buf[1] + left_rotate(round_func(md->buf[1], md->buf[2], md->buf[3]) +
+			+ md->buf[0] + g_md5_const[i] + mem, g_md5_left_rotation[i]);
 }
 
-unsigned int	round_result(unsigned int *mem, t_buf32 *buf, int i)
+unsigned int	round_result(unsigned int *mem, t_buf32 *md, int i)
 {
 	if (i < 16)
-		return md5_round(first_round, mem[i], buf, i);
+		return md5_round(first_round, mem[i], md, i);
 	else if (i >= 16 && i < 32)
-		return md5_round(second_round, mem[(5 * i + 1) % 16], buf, i);
+		return md5_round(second_round, mem[(5 * i + 1) % 16], md, i);
 	else if (i >= 32 && i < 48)
-		return md5_round(third_round, mem[(3 * i + 5) % 16], buf, i);
+		return md5_round(third_round, mem[(3 * i + 5) % 16], md, i);
 	else
-		return md5_round(fourth_round, mem[(7 * i) % 16], buf, i);
+		return md5_round(fourth_round, mem[(7 * i) % 16], md, i);
 }
 
-void	permutation_md5(unsigned int *mem, t_buf32 *buf)
+void	permutation_md5(unsigned int *mem, t_buf32 *md)
 {
 	unsigned int	i;
 	unsigned int	temp;
 	unsigned int	start_values[4];
 
-	save_start_values(start_values, buf);
+	save_start_values(start_values, md);
 	i = 0;
 	while (i < 64)
 	{
-		temp = round_result(mem, buf, i);
-		buf->buf[0] = buf->buf[3];
-		buf->buf[3] = buf->buf[2];
-		buf->buf[2] = buf->buf[1];
-		buf->buf[1] = temp;
+		temp = round_result(mem, md, i);
+		md->buf[0] = md->buf[3];
+		md->buf[3] = md->buf[2];
+		md->buf[2] = md->buf[1];
+		md->buf[1] = temp;
 		i++;
 	}
-	add_start_values(start_values, buf);
+	add_start_values(start_values, md);
 }
 
-static void	set_initial_values_md5(t_buf32 *buf)
+static void	set_initial_values_md5(t_buf32 *md)
 {
-	buf->buf[0] = 0x67452301;
-	buf->buf[1] = 0xefcdab89;
-	buf->buf[2] = 0x98badcfe;
-	buf->buf[3] = 0x10325476;
-	buf->max_buf = MD5_BUF;
-	buf->is_little_endian = TRUE;
-	buf->message_length = MD5_LENGTH;
+	md->buf[0] = 0x67452301;
+	md->buf[1] = 0xefcdab89;
+	md->buf[2] = 0x98badcfe;
+	md->buf[3] = 0x10325476;
+	md->max_buf = MD5_BUF;
+	md->is_little_endian = TRUE;
+	md->message_length = MD5_LENGTH;
+	md->len = 0;
 }
 
 char	*md5(char *init_mem, int fd)
 {
-    t_buf32	buf;
+    t_buf32	md;
 
-	set_initial_values_md5(&buf);
-	permutations(init_mem, fd, &buf, &permutation_md5);
-	return get_result(&buf);
+	set_initial_values_md5(&md);
+	permutations(init_mem, fd, &md, &permutation_md5);
+	return get_result(&md);
 }

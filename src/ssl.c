@@ -21,7 +21,7 @@ void	error_message(char *reason, char *arg)
 	ft_putendl("'");
 }
 
-int		error_exit(char *reason, char *arg)
+int		error_return(char *reason, char *arg)
 {
 	error_message(reason, arg);
 	return -1;
@@ -109,7 +109,7 @@ int		parse_options(int argc, char **argv, t_option *opt, t_digest *digest)
 	while (i < argc && argv[i][0] == '-')
 	{
 		if (ft_strlen(argv[i]) != 2)
-			return error_exit("Wrong option used", argv[i]);
+			return error_return("Wrong option used", argv[i]);
 		option = argv[i][1];
 		if (option == 'p')
 			handle_stdin(digest, opt);
@@ -120,7 +120,7 @@ int		parse_options(int argc, char **argv, t_option *opt, t_digest *digest)
 		else if (option == 's' && i + 1 < argc)
 			handle_string(argv[++i], opt, digest);
 		else
-			return error_exit("Wrong option used", argv[i]);
+			return error_return("Wrong option used", argv[i]);
 		i++;
 	}
 	return i;

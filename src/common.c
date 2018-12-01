@@ -202,8 +202,8 @@ void	permutations(char *init_mem, int fd, t_buf32 *buf, t_perm *permutation)
 	char	mem[BLOCK_SIZE];
 	size_t	len;
 
-	len = get_next_block(&init_mem[0], mem, fd, BLOCK_SIZE);
-	buf->len += len;
+	buf->len = get_next_block(&init_mem[0], mem, fd, BLOCK_SIZE);
+	len = buf->len;
 	while (len == BLOCK_SIZE)
 	{
 		permutation((unsigned int *) mem, buf);

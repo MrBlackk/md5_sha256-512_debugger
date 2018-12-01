@@ -32,27 +32,31 @@ size_t g_sha512_const[80] =
 	0x431d67c49c100d4c, 0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817
 };
 
-void	set_initial_values_sha512(t_sh *sh)
+void	set_initial_values_sha512(t_buf64 *sh)
 {
-	sh->a = 0x6a09e667f3bcc908;
-	sh->b = 0xbb67ae8584caa73b;
-	sh->c = 0x3c6ef372fe94f82b;
-	sh->d = 0xa54ff53a5f1d36f1;
-	sh->e = 0x510e527fade682d1;
-	sh->f = 0x9b05688c2b3e6c1f;
-	sh->g = 0x1f83d9abfb41bd6b;
-	sh->h = 0x5be0cd19137e2179;
+	sh->buf[0] = 0x6a09e667f3bcc908;
+	sh->buf[1] = 0xbb67ae8584caa73b;
+	sh->buf[2] = 0x3c6ef372fe94f82b;
+	sh->buf[3] = 0xa54ff53a5f1d36f1;
+	sh->buf[4] = 0x510e527fade682d1;
+	sh->buf[5] = 0x9b05688c2b3e6c1f;
+	sh->buf[6] = 0x1f83d9abfb41bd6b;
+	sh->buf[7] = 0x5be0cd19137e2179;
+	sh->message_length = SHA512_LENGTH;
+	sh->len = 0;
 }
-void	set_initial_values_sha384(t_sh *sh)
+void	set_initial_values_sha384(t_buf64 *sh)
 {
-	sh->a = 0xcbbb9d5dc1059ed8;
-	sh->b = 0x629a292a367cd507;
-	sh->c = 0x9159015a3070dd17;
-	sh->d = 0x152fecd8f70e5939;
-	sh->e = 0x67332667ffc00b31;
-	sh->f = 0x8eb44a8768581511;
-	sh->g = 0xdb0c2e0d64f98fa7;
-	sh->h = 0x47b5481dbefa4fa4;
+	sh->buf[0] = 0xcbbb9d5dc1059ed8;
+	sh->buf[1] = 0x629a292a367cd507;
+	sh->buf[2] = 0x9159015a3070dd17;
+	sh->buf[3] = 0x152fecd8f70e5939;
+	sh->buf[4] = 0x67332667ffc00b31;
+	sh->buf[5] = 0x8eb44a8768581511;
+	sh->buf[6] = 0xdb0c2e0d64f98fa7;
+	sh->buf[7] = 0x47b5481dbefa4fa4;
+	sh->message_length = SHA384_LENGTH;
+	sh->len = 0;
 }
 
 size_t	right_rotate64(size_t x, int n)
@@ -61,13 +65,13 @@ size_t	right_rotate64(size_t x, int n)
 }
 
 
-size_t	schedule_rotates512(size_t num, int x, int y, int z)
+size_t	schedule_rotates64(size_t num, int x, int y, int z)
 {
 	return right_rotate64(num, x) ^ right_rotate64(num, y) ^ (num >> z);
 }
 
 
-void	prepare_message_schedule512(size_t *mem, size_t *schedule)
+void	prepare_message_schedule64(size_t *mem, size_t *schedule)
 {
 	unsigned char	i;
 	size_t	sc0;
@@ -81,65 +85,53 @@ void	prepare_message_schedule512(size_t *mem, size_t *schedule)
 	}
 	while (i < 80)
 	{
-		sc0 = schedule_rotates512(schedule[i - 15], 1, 8, 7);
-		sc1 = schedule_rotates512(schedule[i - 2], 19, 61, 6);
+		sc0 = schedule_rotates64(schedule[i - 15], 1, 8, 7);
+		sc1 = schedule_rotates64(schedule[i - 2], 19, 61, 6);
 		schedule[i] = sc1 + schedule[i - 7] + sc0 + schedule[i - 16];
 		i++;
 	}
 }
 
-void	save_start_values512(size_t start_values[8], t_sh *sh)
+void	save_start_values64(size_t *start_values, t_buf64 *sh)
 {
-	start_values[0] = sh->a;
-	start_values[1] = sh->b;
-	start_values[2] = sh->c;
-	start_values[3] = sh->d;
-	start_values[4] = sh->e;
-	start_values[5] = sh->f;
-	start_values[6] = sh->g;
-	start_values[7] = sh->h;
+	unsigned char	i;
+
+	i = 0;
+	while (i < 8)
+	{
+		start_values[i] = sh->buf[i];
+		i++;
+	}
 }
 
-void	add_start_values512(size_t start_values[8], t_sh *sh)
+void	add_start_values512(size_t *start_values, t_buf64 *sh)
 {
-	sh->a += start_values[0];
-	sh->b += start_values[1];
-	sh->c += start_values[2];
-	sh->d += start_values[3];
-	sh->e += start_values[4];
-	sh->f += start_values[5];
-	sh->g += start_values[6];
-	sh->h += start_values[7];
+	unsigned char	i;
+
+	i = 0;
+	while (i < 8)
+	{
+		sh->buf[i] += start_values[i];
+		i++;
+	}
 }
 
-size_t	sum512(size_t num, int x, int y, int z)
+size_t	sum64(size_t num, int x, int y, int z)
 {
 	return right_rotate64(num, x) ^ right_rotate64(num, y) ^ right_rotate64(num, z);
 }
 
-size_t	ch512(size_t x, size_t y, size_t z)
+size_t	ch64(size_t x, size_t y, size_t z)
 {
 	return (x & y) ^ (~x & z);
 }
 
-size_t	maj512(size_t x, size_t y, size_t z)
+size_t	maj64(size_t x, size_t y, size_t z)
 {
 	return (x & y) ^ (x & z) ^ (y & z);
 }
 
-void	debug_vars512(t_sh *sha)
-{
-	ft_printf("%llx ", sha->a);
-	ft_printf("%llx ", sha->b);
-	ft_printf("%llx ", sha->c);
-	ft_printf("%llx ", sha->d);
-	ft_printf("%llx ", sha->e);
-	ft_printf("%llx ", sha->f);
-	ft_printf("%llx ", sha->g);
-	ft_printf("%llx\n", sha->h);
-}
-
-void	perm512(size_t *mem, t_sh *sh)
+void	permutation512(size_t *mem, t_buf64 *sh)
 {
 	unsigned char	i;
 	size_t	start_values[8];
@@ -148,29 +140,27 @@ void	perm512(size_t *mem, t_sh *sh)
 	size_t	temp2;
 
 	i = 0;
-	prepare_message_schedule512(mem, schedule);
-	save_start_values512(start_values, sh);
+	prepare_message_schedule64(mem, schedule);
+	save_start_values64(start_values, sh);
 	while (i < 80)
 	{
-		temp1 = sh->h + sum512(sh->e, 14, 18, 41) + ch512(sh->e, sh->f, sh->g) +
+		temp1 = sh->buf[7] + sum64(sh->buf[4], 14, 18, 41) + ch64(sh->buf[4], sh->buf[5], sh->buf[6]) +
 				+ g_sha512_const[i] + schedule[i];
-		temp2 = sum512(sh->a, 28, 34, 39) + maj512(sh->a, sh->b, sh->c);
-		sh->h = sh->g;
-		sh->g = sh->f;
-		sh->f = sh->e;
-		sh->e = sh->d + temp1;
-		sh->d = sh->c;
-		sh->c = sh->b;
-		sh->b = sh->a;
-		sh->a = temp1 + temp2;
-//		debug_vars512(sh);
+		temp2 = sum64(sh->buf[0], 28, 34, 39) + maj64(sh->buf[0], sh->buf[1], sh->buf[2]);
+		sh->buf[7] = sh->buf[6];
+		sh->buf[6] = sh->buf[5];
+		sh->buf[5] = sh->buf[4];
+		sh->buf[4] = sh->buf[3] + temp1;
+		sh->buf[3] = sh->buf[2];
+		sh->buf[2] = sh->buf[1];
+		sh->buf[1] = sh->buf[0];
+		sh->buf[0] = temp1 + temp2;
 		i++;
 	}
 	add_start_values512(start_values, sh);
 }
 
-
-void	sha512_permutations(char *init_mem, int fd, t_sh *sh)
+void	permutations_sha512(char *init_mem, int fd, t_buf64 *sh)
 {
 	char	mem[SHA512_BLOCK];
 	size_t	len;
@@ -179,67 +169,53 @@ void	sha512_permutations(char *init_mem, int fd, t_sh *sh)
 	len = sh->len;
 	while (len == SHA512_BLOCK)
 	{
-		perm512((size_t *) mem, sh);
+		permutation512((size_t *) mem, sh);
 		len = get_next_block(&init_mem[sh->len], mem, fd, SHA512_BLOCK);
 		sh->len += len;
 	}
 	ft_memset(&mem[len], FIRST_BITE, 1);
 	if (len >= SHA512_MESSAGE)
 	{
-		perm512((size_t *) mem, sh);
+		permutation512((size_t *) mem, sh);
 		sh->len += get_next_block(&init_mem[sh->len], mem, fd, SHA512_BLOCK);
 	}
 //	sh->len = 0xffffffffffffffff; //todo: could be possilbe to set 128 bit number
 	set_memory_length(&mem[SHA512_MESSAGE + 8], sh->len, 8, 0);
 //	debug(mem, 32, 1);
-	perm512((size_t *) mem, sh);
+	permutation512((size_t *) mem, sh);
 }
 
-
-char *get_result_sha512(t_sh *sh)
+char 	*get_result64(t_buf64 *buf)
 {
-	char	res[SHA512_LENGTH + 1];
+	char			*res;
+	unsigned char	i;
 
-	ft_bzero(&res, SHA512_LENGTH + 1);
-	result(res, sh->a, 0, 0, 64);
-	result(res, sh->b, 16, 0, 64);
-	result(res, sh->c, 32, 0, 64);
-	result(res, sh->d, 48, 0, 64);
-	result(res, sh->e, 64, 0, 64);
-	result(res, sh->f, 80, 0, 64);
-	result(res, sh->g, 96, 0, 64);
-	result(res, sh->h, 112, 0, 64);
-	return ft_strdup(res);
-}
-
-char *get_result_sha384(t_sh *sh)
-{
-	char	res[SHA384_LENGTH + 1];
-
-	ft_bzero(&res, SHA384_LENGTH + 1);
-	result(res, sh->a, 0, 0, 64);
-	result(res, sh->b, 16, 0, 64);
-	result(res, sh->c, 32, 0, 64);
-	result(res, sh->d, 48, 0, 64);
-	result(res, sh->e, 64, 0, 64);
-	result(res, sh->f, 80, 0, 64);
-	return ft_strdup(res);
+	res = ft_strnew(buf->message_length + 1);
+	if (res == NULL)
+		exit(1);
+	i = 0;
+	while (i * 16 < buf->message_length)
+	{
+		result(res, buf->buf[i], i * 16, 0, 64);
+		i++;
+	}
+	return res;
 }
 
 char	*sha512(char *mem, int fd)
 {
-	t_sh	sh;
+	t_buf64	sh;
 
 	set_initial_values_sha512(&sh);
-	sha512_permutations(mem, fd, &sh);
-	return get_result_sha512(&sh);
+	permutations_sha512(mem, fd, &sh);
+	return get_result64(&sh);
 }
 
 char	*sha384(char *mem, int fd)
 {
-	t_sh	sh;
+	t_buf64	sh;
 
 	set_initial_values_sha384(&sh);
-	sha512_permutations(mem, fd, &sh);
-	return get_result_sha384(&sh);
+	permutations_sha512(mem, fd, &sh);
+	return get_result64(&sh);
 }

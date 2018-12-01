@@ -17,23 +17,17 @@
 # include "common.h"
 
 # define SHA512_LENGTH 128
-# define SHA384_LENGTH 96
 # define SHA512_BLOCK 128
 # define SHA512_MESSAGE 112
+# define SHA384_LENGTH 96
 
-typedef struct s_sh	t_sh;
+typedef struct s_buf64	t_buf64;
 
-struct	s_sh
+struct	s_buf64
 {
-	size_t	a;
-	size_t	b;
-	size_t	c;
-	size_t	d;
-	size_t	e;
-	size_t	f;
-	size_t	g;
-	size_t	h;
-	size_t	len;
+	size_t			buf[8];
+	unsigned char	message_length;
+	size_t			len;
 };
 
 #endif
