@@ -17,22 +17,8 @@
 # include "common.h"
 
 # define SHA256_LENGTH 64
+# define SHA256_BUF 8
 # define SHA224_LENGTH 56
-
-typedef struct s_sha	t_sha;
-
-struct	s_sha
-{
-	unsigned int	a;
-	unsigned int	b;
-	unsigned int	c;
-	unsigned int	d;
-	unsigned int	e;
-	unsigned int	f;
-	unsigned int	g;
-	unsigned int	h;
-	size_t			len;
-};
-
+# define SHA224_BUF 8
 
 #endif

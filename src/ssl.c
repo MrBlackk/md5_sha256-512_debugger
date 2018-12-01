@@ -280,7 +280,6 @@ char **split_arg_line(char *line)
 	int 	i_arg;
 	int		argc;
 	char	**words;
-	int		j;
 
 	argc = count_args(line) + 1;
 	if ((words = get_args_array(argc)) == NULL)

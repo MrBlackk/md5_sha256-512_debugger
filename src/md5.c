@@ -69,92 +69,60 @@ unsigned int	left_rotate(unsigned int x, int n)
 	return (x << n) | (x >> (32 - n));
 }
 
-unsigned int	md5_round(t_round round_func, unsigned int mem, t_md *md, int i)
+unsigned int	md5_round(t_round round_func, unsigned int mem, t_buf32 *buf, int i)
 {
-	return md->b + left_rotate(round_func(md->b, md->c, md->d) +
-			+ md->a + g_md5_const[i] + mem, g_md5_left_rotation[i]);
+	return buf->buf[1] + left_rotate(round_func(buf->buf[1], buf->buf[2], buf->buf[3]) +
+			+ buf->buf[0] + g_md5_const[i] + mem, g_md5_left_rotation[i]);
 }
 
-unsigned int	round_result(unsigned int *mem, t_md *md, int i)
+unsigned int	round_result(unsigned int *mem, t_buf32 *buf, int i)
 {
 	if (i < 16)
-		return md5_round(first_round, mem[i], md, i);
+		return md5_round(first_round, mem[i], buf, i);
 	else if (i >= 16 && i < 32)
-		return md5_round(second_round, mem[(5 * i + 1) % 16], md, i);
+		return md5_round(second_round, mem[(5 * i + 1) % 16], buf, i);
 	else if (i >= 32 && i < 48)
-		return md5_round(third_round, mem[(3 * i + 5) % 16], md, i);
+		return md5_round(third_round, mem[(3 * i + 5) % 16], buf, i);
 	else
-		return md5_round(fourth_round, mem[(7 * i) % 16], md, i);
+		return md5_round(fourth_round, mem[(7 * i) % 16], buf, i);
 }
 
-void	permutation(unsigned int *mem, t_md *md)
+void	permutation_md5(unsigned int *mem, t_buf32 *buf)
 {
 	unsigned int	i;
 	unsigned int	temp;
 	unsigned int	start_values[4];
 
-	start_values[0] = md->a;
-	start_values[1] = md->b;
-	start_values[2] = md->c;
-	start_values[3] = md->d;
+	save_start_values(start_values, buf);
 	i = 0;
 	while (i < 64)
 	{
-		temp = round_result(mem, md, i);
-		md->a = md->d;
-		md->d = md->c;
-		md->c = md->b;
-		md->b = temp;
+		temp = round_result(mem, buf, i);
+		buf->buf[0] = buf->buf[3];
+		buf->buf[3] = buf->buf[2];
+		buf->buf[2] = buf->buf[1];
+		buf->buf[1] = temp;
 		i++;
 	}
-	md->a += start_values[0];
-	md->b += start_values[1];
-	md->c += start_values[2];
-	md->d += start_values[3];
+	add_start_values(start_values, buf);
 }
 
-static void	set_initial_values(t_md *md)
+static void	set_initial_values_md5(t_buf32 *buf)
 {
-	md->a = 0x67452301;
-	md->b = 0xefcdab89;
-	md->c = 0x98badcfe;
-	md->d = 0x10325476;
-}
-
-char 	*get_result(t_md *md)
-{
-	char	res[MD5_LENGTH + 1];
-
-	ft_bzero(&res, MD5_LENGTH + 1);
-	result(res, md->a, 0, 1, 32);
-	result(res, md->b, 8, 1, 32);
-	result(res, md->c, 16, 1, 32);
-	result(res, md->d, 24, 1, 32);
-	return ft_strdup(res);
+	buf->buf[0] = 0x67452301;
+	buf->buf[1] = 0xefcdab89;
+	buf->buf[2] = 0x98badcfe;
+	buf->buf[3] = 0x10325476;
+	buf->max_buf = MD5_BUF;
+	buf->is_little_endian = TRUE;
+	buf->message_length = MD5_LENGTH;
 }
 
 char	*md5(char *init_mem, int fd)
 {
-    char	mem[BLOCK_SIZE];
-    t_md	md;
-	size_t	len;
+    t_buf32	buf;
 
-	set_initial_values(&md);
-	md.len = get_next_block(&init_mem[0], mem, fd, BLOCK_SIZE);
-	len = md.len;
-	while (len == BLOCK_SIZE)
-	{
-		permutation((unsigned int *) mem, &md);
-		len = get_next_block(&init_mem[md.len], mem, fd, BLOCK_SIZE);
-		md.len += len;
-	}
-	ft_memset(&mem[len], FIRST_BITE, 1);
-	if (len >= MESSAGE_SIZE)
-	{
-		permutation((unsigned int *) mem, &md);
-		md.len += get_next_block(&init_mem[md.len], mem, fd, BLOCK_SIZE);
-	}
-	set_memory_length(&mem[MESSAGE_SIZE], md.len, 8, 1);
-	permutation((unsigned int *) mem, &md);
-	return get_result(&md);
+	set_initial_values_md5(&buf);
+	permutations(init_mem, fd, &buf, &permutation_md5);
+	return get_result(&buf);
 }

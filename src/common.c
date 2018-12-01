@@ -149,17 +149,17 @@ size_t	get_hex(size_t num) {
 		return num + '0';
 }
 
-void	result(char *res, size_t num, unsigned int str_iter, char is_little_endian, int size) {
+void	result(char *res, size_t num, unsigned int str_iter, char is_little_endian, unsigned int size) {
 	unsigned int	i;
 	size_t	byte;
 
 	i = 0;
-	while(i < size)
+	while (i < size)
 	{
 		if (is_little_endian)
 			byte = (num >> i) & 255;
 		else
-			byte = (num >> size - 8 - i) & 255;
+			byte = (num >> (size - 8 - i)) & 255;
 		res[str_iter++] = (char) get_hex(byte / 16);
 		res[str_iter++] = (char) get_hex(byte % 16);
 		i += 8;
@@ -178,4 +178,68 @@ size_t			reverse_bytes(size_t num, int size)
 		i++;
 	}
 	return (reverse_num);
+}
+
+char 	*get_result(t_buf32 *buf)
+{
+	char			*res;
+	unsigned char	i;
+
+	res = ft_strnew(buf->message_length + 1);
+	if (res == NULL)
+		exit(1);
+	i = 0;
+	while (i * 8 < buf->message_length)
+	{
+		result(res, buf->buf[i], i * 8, buf->is_little_endian, 32);
+		i++;
+	}
+	return res;
+}
+
+void	permutations(char *init_mem, int fd, t_buf32 *buf, t_perm *permutation)
+{
+	char	mem[BLOCK_SIZE];
+	size_t	len;
+
+	len = get_next_block(&init_mem[0], mem, fd, BLOCK_SIZE);
+	buf->len += len;
+	while (len == BLOCK_SIZE)
+	{
+		permutation((unsigned int *) mem, buf);
+		len = get_next_block(&init_mem[buf->len], mem, fd, BLOCK_SIZE);
+		buf->len += len;
+	}
+	ft_memset(&mem[len], FIRST_BITE, 1);
+	if (len >= MESSAGE_SIZE)
+	{
+		permutation((unsigned int *) mem, buf);
+		buf->len += get_next_block(&init_mem[buf->len], mem, fd, BLOCK_SIZE);
+	}
+	set_memory_length(&mem[MESSAGE_SIZE], buf->len, 8, buf->is_little_endian);
+	permutation((unsigned int *) mem, buf);
+}
+
+void	save_start_values(unsigned int *start_values, t_buf32 *buf)
+{
+	unsigned char	i;
+
+	i = 0;
+	while (i < buf->max_buf)
+	{
+		start_values[i] = buf->buf[i];
+		i++;
+	}
+}
+
+void	add_start_values(unsigned int *start_values, t_buf32 *buf)
+{
+	unsigned char	i;
+
+	i = 0;
+	while (i < buf->max_buf)
+	{
+		buf->buf[i] += start_values[i];
+		i++;
+	}
 }

@@ -17,17 +17,8 @@
 # include "common.h"
 
 # define MD5_LENGTH 32
+# define MD5_BUF 4
 
 typedef unsigned int t_round(unsigned int x, unsigned int y, unsigned int z);
-typedef struct s_md	t_md;
-
-struct	s_md
-{
-	unsigned int	a;
-	unsigned int	b;
-	unsigned int	c;
-	unsigned int	d;
-	size_t			len;
-};
 
 #endif

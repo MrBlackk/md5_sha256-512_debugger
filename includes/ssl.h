@@ -14,6 +14,8 @@
 # define SSL_H
 
 # include "md5.h"
+# include "sha256.h"
+# include "sha512.h"
 
 typedef char *t_function(char *mem, int fd);
 typedef struct s_digest	t_digest;
