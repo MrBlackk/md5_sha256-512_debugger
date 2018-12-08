@@ -1,29 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sha512.h                                           :+:      :+:    :+:   */
+/*   digest.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vchornyi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/11/24 20:54:55 by vchornyi          #+#    #+#             */
-/*   Updated: 2018/11/24 20:54:56 by vchornyi         ###   ########.fr       */
+/*   Created: 2018/12/08 16:07:00 by vchornyi          #+#    #+#             */
+/*   Updated: 2018/12/08 16:07:01 by vchornyi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SHA512_H
-# define SHA512_H
+#ifndef DIGEST_H
+# define DIGEST_H
 
 # include "libft.h"
 # include "common.h"
 
-# define SHA512_LENGTH 128
-# define SHA512_BLOCK 128
-# define SHA512_MESSAGE 112
-# define SHA384_LENGTH 96
+typedef char	*t_function(char *mem, int fd);
+typedef struct s_digest	t_digest;
+typedef struct s_option	t_option;
 
-void	prepare_message_schedule64(size_t *mem, size_t *schedule);
-void	save_start_values64(size_t *start_values, t_buf64 *sh);
-void	add_start_values512(size_t *start_values, t_buf64 *sh);
-void	permutation512(size_t *mem, t_buf64 *s);
+struct			s_option
+{
+	char	is_quiet;
+	char	is_reverse;
+	char	is_stdin;
+};
+
+struct			s_digest
+{
+	char		*name;
+	t_function	*digest;
+};
 
 #endif

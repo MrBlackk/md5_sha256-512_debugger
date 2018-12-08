@@ -29,7 +29,8 @@ SRC_NAME = ft_atoi.c ft_bzero.c ft_isalnum.c ft_isalpha.c ft_isascii.c\
  ft_printf.c ft_strbasetoul.c ft_putstr_len.c ft_wchar_to_str.c\
  ft_wstr_to_str.c ft_char_to_str.c ft_str_to_upper.c\
  pf_set_flags.c pf_format_to_t_str.c pf_format_digit.c pf_format_ch_str.c\
- pf_format_oct_uns.c pf_format_hex.c pf_format.c pf_format_bonus.c ft_free_ret.c
+ pf_format_oct_uns.c pf_format_hex.c pf_format.c pf_format_bonus.c ft_free_ret.c\
+ ft_iswhitespace.c
  
 OBJ_NAME = $(SRC_NAME:.c=.o)
 

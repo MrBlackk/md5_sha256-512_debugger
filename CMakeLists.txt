@@ -11,6 +11,7 @@ add_executable(ft_ssl
         includes/sha256.h
         includes/sha512.h
         includes/common.h
+        includes/digest.h
         includes/ssl.h
         libft/includes/libft.h
         libft/srcs/ft_atoi.c
@@ -22,6 +23,7 @@ add_executable(ft_ssl
         libft/srcs/ft_isascii.c
         libft/srcs/ft_isdigit.c
         libft/srcs/ft_isprint.c
+        libft/srcs/ft_iswhitespace.c
         libft/srcs/ft_itoa.c
         libft/srcs/ft_lstadd.c
         libft/srcs/ft_lstaddend.c
@@ -99,6 +101,8 @@ add_executable(ft_ssl
         libft/srcs/pf_set_flags.c
         src/md5.c
         src/common.c
+        src/split_arg_list.c
+        src/parse_args.c
         src/common_permutations.c
         src/result.c
         src/get_next_block.c

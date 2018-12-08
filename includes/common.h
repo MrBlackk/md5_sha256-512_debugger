@@ -25,9 +25,9 @@
 
 typedef struct s_buf32	t_buf32;
 typedef struct s_buf64	t_buf64;
-typedef void t_perm(unsigned int *mem, t_buf32 *buf);
+typedef void	t_perm(unsigned int *mem, t_buf32 *buf);
 
-struct	s_buf32
+struct			s_buf32
 {
 	unsigned int	bf[8];
 	unsigned char	max_buf;
@@ -36,26 +36,28 @@ struct	s_buf32
 	size_t			len;
 };
 
-struct	s_buf64
+struct			s_buf64
 {
 	size_t			bf[8];
 	unsigned char	message_length;
 	size_t			len;
 };
 
-unsigned int	get_next_block(char *src, char *dst, int fd, unsigned int block_size);
-void	set_memory_length(char *init_mem, size_t length, int size, char is_little_endian);
+unsigned int	get_next_block(char *src, char *dst, int fd,
+										unsigned int block_size);
+void			set_memory_length(char *init_mem, size_t length, int size,
+										char is_little_endian);
 size_t			reverse_bytes(size_t num, int size);
-void	permutations(char *init_mem, int fd, t_buf32 *buf, t_perm *permutation);
-char 	*get_result(t_buf32 *buf);
-void	save_start_values(unsigned int *start_values, t_buf32 *buf);
-void	add_start_values(unsigned int *start_values, t_buf32 *buf);
-
-void	error_exit(char *reason, char *arg);
-int		error_return(char *reason, char *arg);
-void	error_message(char *reason, char *arg);
-
+void			permutations(char *init_mem, int fd, t_buf32 *buf,
+										t_perm *permutation);
+char			*get_result(t_buf32 *buf);
+void			save_start_values(unsigned int *start_values, t_buf32 *buf);
+void			add_start_values(unsigned int *start_values, t_buf32 *buf);
+void			error_exit(char *reason, char *arg);
+int				error_return(char *reason, char *arg);
+void			error_message(char *reason, char *arg);
 unsigned int	right_rotate(unsigned int x, int n);
-size_t	right_rotate64(size_t x, int n);
-char 	*get_result64(t_buf64 *buf);
+size_t			right_rotate64(size_t x, int n);
+char			*get_result64(t_buf64 *buf);
+
 #endif
