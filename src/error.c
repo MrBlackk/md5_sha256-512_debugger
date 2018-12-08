@@ -32,3 +32,8 @@ void	error_exit(char *reason, char *arg)
 	error_message(reason, arg);
 	exit(1);
 }
+
+void	cmd_exit(void)
+{
+	exit(0);
+}
