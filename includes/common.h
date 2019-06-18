@@ -13,6 +13,10 @@
 #ifndef COMMON_H
 # define COMMON_H
 
+#ifndef DEBUG
+# define DEBUG 1
+#endif
+
 # include "libft.h"
 
 # define TRUE 1

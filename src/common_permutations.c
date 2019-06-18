@@ -41,6 +41,12 @@ void	permutations(char *init_mem, int fd, t_buf32 *buf, t_perm *permutation)
 	char	mem[BLOCK_SIZE];
 	size_t	len;
 
+	if (DEBUG) {
+		ft_printf("Initial words values:\n");
+		for (int i = 0; i < buf->max_buf; i++) {
+			ft_printf("%c: %x\n", i + 'A', buf->bf[i]);
+		}
+	}
 	buf->len = get_next_block(&init_mem[0], mem, fd, BLOCK_SIZE);
 	len = buf->len;
 	while (len == BLOCK_SIZE)

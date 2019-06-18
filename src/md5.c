@@ -93,6 +93,23 @@ char				*md5(char *init_mem, int fd)
 {
 	t_buf32	md;
 
+	if (DEBUG) {
+		ft_printf("Table of constants:\n");
+		for (int i = 0; i < 64; i++) {
+			ft_printf("%2d=%#.8x  ", i, g_md5_const[i]);
+			if ((i + 1) % 8 == 0) {
+				ft_printf("\n");
+			}
+		}
+		ft_printf("Table of left rotations:\n");
+		for (int i = 0; i < 64; i++) {
+			ft_printf("%2d=%-2d  ", i, g_md5_left_rotation[i]);
+			if ((i + 1) % 8 == 0) {
+				ft_printf("\n");
+			}
+
+		}
+	}
 	set_initial_values_md5(&md);
 	permutations(init_mem, fd, &md, &permutation_md5);
 	return (get_result(&md));

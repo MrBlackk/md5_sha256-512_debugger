@@ -39,6 +39,8 @@ static void		result(char *res, size_t num, char is_little_endian,
 		res[str_iter++] = (char)get_hex(byte % 16);
 		i += 8;
 	}
+	if (DEBUG)
+		ft_printf(": %s\n", res);
 }
 
 char			*get_result(t_buf32 *buf)
@@ -49,9 +51,13 @@ char			*get_result(t_buf32 *buf)
 	res = ft_strnew(buf->message_length + 1);
 	if (res == NULL)
 		exit(1);
+	if (DEBUG)
+		ft_printf("\nResults:\n");
 	i = 0;
 	while (i * 8 < buf->message_length)
 	{
+		if (DEBUG)
+			ft_printf("%c", i + 'A');
 		result(&res[i * 8], buf->bf[i], buf->is_little_endian, 32);
 		i++;
 	}
