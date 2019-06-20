@@ -63,5 +63,6 @@ void			error_message(char *reason, char *arg);
 unsigned int	right_rotate(unsigned int x, int n);
 size_t			right_rotate64(size_t x, int n);
 char			*get_result64(t_buf64 *buf);
+void			print_table(unsigned int *table, unsigned int size, char *name, char *format);
 
 #endif
