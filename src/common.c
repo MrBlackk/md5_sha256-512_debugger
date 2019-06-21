@@ -37,10 +37,15 @@ size_t			reverse_bytes(size_t num, int size)
 	return (reverse_num);
 }
 
-void	print_table(unsigned int *table, unsigned int size, char *name, char *format) {
+void print_table(unsigned int *table, unsigned int size, char *name, char *format, char *arrName) {
+	char str[20];
+
+	ft_strcpy(str, arrName);
+	ft_strcat(str, "[%2d]=");
+	ft_strcat(str, format);
 	ft_printf("Table of %s:\n", name);
 	for (int i = 0; i < size; i++) {
-		ft_printf(format, i, table[i]);
+		ft_printf(str, i, table[i]);
 		if ((i + 1) % 8 == 0) {
 			ft_printf("\n");
 		}
