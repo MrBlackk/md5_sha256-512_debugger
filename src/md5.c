@@ -73,16 +73,14 @@ static void			permutation_md5(unsigned int *mem, t_buf32 *md)
 
 	save_start_values(start_values, md);
 	if (DEBUG) {
-		ft_printf("Block binary %u:\n", block_i);
+		ft_printf("#%u memory block binary /byte by byte/:\n", block_i);
 		print_memory(mem, BLOCK_SIZE);
-		ft_printf("Block decimal %u:\n", block_i);
+		ft_printf("#%u memory block decimal /unsigned ints/:\n", block_i);
 		for (int j = 0; j < 16; j++) {
 			ft_printf("[%2d] %zu\n", j, mem[j]);
 		}
 		block_i++;
-		if (DEBUG) {
-			ft_printf("\nStart words values A=%-11zu B=%-11zu C=%-11zu D=%-11zu\n", md->bf[0], md->bf[1], md->bf[2], md->bf[3]);
-		}
+		ft_printf("\nStart words values A=%-11zu B=%-11zu C=%-11zu D=%-11zu\n", md->bf[0], md->bf[1], md->bf[2], md->bf[3]);
 		ft_printf("Words on each permutation step: \n");
 	}
 	i = 0;

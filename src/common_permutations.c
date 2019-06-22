@@ -57,12 +57,18 @@ void	permutations(char *init_mem, int fd, t_buf32 *buf, t_perm *permutation)
 		buf->len += len;
 	}
 	ft_memset(&mem[len], FIRST_BITE, 1);
+	if (DEBUG) {
+	    ft_printf("-- Set memory end .../ 10000000 /... at %zu byte --\n", len + 1);
+	}
 	if (len >= MESSAGE_SIZE)
 	{
 		permutation((unsigned int *)mem, buf);
 		buf->len += get_next_block(&init_mem[buf->len], mem, fd, BLOCK_SIZE);
 	}
 	set_memory_length(&mem[MESSAGE_SIZE], buf->len, 8, buf->is_little_endian);
+    if (DEBUG) {
+        ft_printf("-- Set memory length=%zu starting from %zu byte --\n", buf->len, MESSAGE_SIZE + 1);
+    }
 	permutation((unsigned int *)mem, buf);
 }
 
