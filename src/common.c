@@ -12,6 +12,8 @@
 
 #include "common.h"
 
+static unsigned int block_i = 0;
+
 unsigned int	right_rotate(unsigned int x, int n)
 {
 	return (x >> n) | (x << (32 - n));
@@ -51,4 +53,54 @@ void print_table(unsigned int *table, unsigned int size, char *name, char *forma
 		}
 	}
 	ft_printf("\n");
+}
+
+void    print_binary_memory(void *memory, size_t len) {
+    size_t i = 0;
+    unsigned char *bytes = (unsigned char*)memory;
+    while (i < len) {
+        ft_printf("%08b ", bytes[i]);
+        i++;
+        if (i % 8 == 0) {
+            ft_printf("\n");
+        }
+    }
+    ft_printf("\n");
+}
+
+void print_memory(unsigned int *mem, unsigned int *bf, unsigned int buf_size, unsigned int block_size) {
+    if (DEBUG) {
+        ft_printf("#%u memory block binary /byte by byte/:\n", block_i);
+        print_binary_memory(mem, block_size);
+        ft_printf("#%u memory block decimal /unsigned ints/:\n", block_i);
+        for (int j = 0; j < 16; j++) {
+            ft_printf("[%2d] %zu\n", j, mem[j]);
+        }
+        block_i++;
+        ft_printf("\nStart words values ");
+        for (int i = 0; i < buf_size; ++i) {
+            ft_printf("%c=%-11zu ", i + 'A', bf[i]);
+        }
+        ft_printf("\nWords on each permutation step: \n");
+    }
+}
+
+void print_words_iteration(unsigned int *bf, unsigned int buf_size, unsigned int i) {
+    if (DEBUG) {
+        ft_printf("[%2d] ", i);
+        for (int j = 0; j < buf_size; ++j) {
+            ft_printf("%c=%-11zu ", j + 'A', bf[(i + j + 1) % buf_size]);
+        }
+        ft_printf("\n");
+    }
+}
+
+void print_words_processed(unsigned int *bf, unsigned int buf_size) {
+    if (DEBUG) {
+        ft_printf("Processed ");
+        for (int j = 0; j < buf_size; ++j) {
+            ft_printf("%c=%-11zu ", j + 'A', bf[j]);
+        }
+        ft_printf("\n\n");
+    }
 }

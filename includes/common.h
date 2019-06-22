@@ -64,5 +64,8 @@ unsigned int	right_rotate(unsigned int x, int n);
 size_t			right_rotate64(size_t x, int n);
 char			*get_result64(t_buf64 *buf);
 void print_table(unsigned int *table, unsigned int size, char *name, char *format, char *arrName);
+void print_memory(unsigned int *mem, unsigned int *bf, unsigned int buf_size, unsigned int block_size);
+void print_words_iteration(unsigned int *bf, unsigned int buf_size, unsigned int i);
+void print_words_processed(unsigned int *bf, unsigned int buf_size);
 
 #endif

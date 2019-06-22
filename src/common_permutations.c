@@ -67,7 +67,10 @@ void	permutations(char *init_mem, int fd, t_buf32 *buf, t_perm *permutation)
 	}
 	set_memory_length(&mem[MESSAGE_SIZE], buf->len, 8, buf->is_little_endian);
     if (DEBUG) {
-        ft_printf("-- Set memory length=%zu starting from %zu byte --\n", buf->len, MESSAGE_SIZE + 1);
+        ft_printf("-- Set memory length=%zu starting from %zu byte in %s--\n", buf->len, MESSAGE_SIZE + 1,
+                buf->is_little_endian
+                ? "little endian(least-significant element in the lowest-enumerated (\"smallest numbered\" or \"first\") position)"
+                : "big endian(least-significant element in the largest-enumerated (\"largest numbered\" or \"last\") position)");
     }
 	permutation((unsigned int *)mem, buf);
 }

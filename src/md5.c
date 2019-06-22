@@ -52,19 +52,6 @@ static unsigned int	md5_round(t_round f, unsigned int mem, t_buf32 *md, int i)
 				md->bf[0] + g_md5_const[i] + mem, g_md5_left_rotation[i]));
 }
 
-void    print_memory(void *memory, size_t len) {
-	size_t i = 0;
-	unsigned char *bytes = (unsigned char*)memory;
-	while (i < len) {
-		ft_printf("%08b ", bytes[i]);
-		i++;
-		if (i % 8 == 0) {
-			ft_printf("\n");
-		}
-	}
-	ft_printf("\n");
-}
-
 static void			permutation_md5(unsigned int *mem, t_buf32 *md)
 {
 	unsigned int	i;
@@ -72,17 +59,7 @@ static void			permutation_md5(unsigned int *mem, t_buf32 *md)
 	unsigned int	start_values[4];
 
 	save_start_values(start_values, md);
-	if (DEBUG) {
-		ft_printf("#%u memory block binary /byte by byte/:\n", block_i);
-		print_memory(mem, BLOCK_SIZE);
-		ft_printf("#%u memory block decimal /unsigned ints/:\n", block_i);
-		for (int j = 0; j < 16; j++) {
-			ft_printf("[%2d] %zu\n", j, mem[j]);
-		}
-		block_i++;
-		ft_printf("\nStart words values A=%-11zu B=%-11zu C=%-11zu D=%-11zu\n", md->bf[0], md->bf[1], md->bf[2], md->bf[3]);
-		ft_printf("Words on each permutation step: \n");
-	}
+    print_memory(mem, md->bf, md->max_buf, BLOCK_SIZE);
 	i = 0;
 	while (i < 64)
 	{
@@ -98,15 +75,11 @@ static void			permutation_md5(unsigned int *mem, t_buf32 *md)
 		md->bf[3] = md->bf[2];
 		md->bf[2] = md->bf[1];
 		md->bf[1] = temp;
-		if (DEBUG) {
-			ft_printf("[%2d] A=%-11zu B=%-11zu C=%-11zu D=%-11zu\n", i, md->bf[(i+1) % 4], md->bf[(i+2) % 4], md->bf[(i+3) % 4], md->bf[(i+4) % 4]);
-		}
+        print_words_iteration(md->bf, md->max_buf, i);
 		i++;
 	}
 	add_start_values(start_values, md);
-	if (DEBUG) {
-		ft_printf("Processed A=%-11zu B=%-11zu C=%-11zu D=%-11zu\n\n", md->bf[0], md->bf[1], md->bf[2], md->bf[3]);
-	}
+    print_words_processed(md->bf, md->max_buf);
 }
 
 static void			set_initial_values_md5(t_buf32 *md)

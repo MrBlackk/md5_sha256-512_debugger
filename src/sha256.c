@@ -75,6 +75,7 @@ static void	permutations_sha256(unsigned int *mem, t_buf32 *s)
 	i = 0;
 	prepare_msg_schedule(mem, schedule);
 	save_start_values(start_values, s);
+    print_memory(mem, s->bf, s->max_buf, BLOCK_SIZE);
 	while (i < 64)
 	{
 		t1 = s->bf[7] + sum(s->bf[4], 6, 11, 25) + ch(s->bf[4], s->bf[5],
@@ -88,9 +89,11 @@ static void	permutations_sha256(unsigned int *mem, t_buf32 *s)
 		s->bf[2] = s->bf[1];
 		s->bf[1] = s->bf[0];
 		s->bf[0] = t1 + t2;
+        print_words_iteration(s->bf, s->max_buf, i);
 		i++;
 	}
 	add_start_values(start_values, s);
+    print_words_processed(s->bf, s->max_buf);
 }
 
 char		*sha256(char *init_mem, int fd)
