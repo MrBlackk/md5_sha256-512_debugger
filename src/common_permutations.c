@@ -41,13 +41,7 @@ void	permutations(char *init_mem, int fd, t_buf32 *buf, t_perm *permutation)
 	char	mem[BLOCK_SIZE];
 	size_t	len;
 
-	if (DEBUG) {
-		ft_printf("Initial words values:\n");
-		for (int i = 0; i < buf->max_buf; i++) {
-			ft_printf("%c: %zu\n", i + 'A', buf->bf[i]);
-		}
-		ft_printf("\n");
-	}
+	print_initial_words_values(buf->bf, buf->max_buf, TRUE);
 	buf->len = get_next_block(&init_mem[0], mem, fd, BLOCK_SIZE);
 	len = buf->len;
 	while (len == BLOCK_SIZE)
@@ -57,21 +51,14 @@ void	permutations(char *init_mem, int fd, t_buf32 *buf, t_perm *permutation)
 		buf->len += len;
 	}
 	ft_memset(&mem[len], FIRST_BITE, 1);
-	if (DEBUG) {
-	    ft_printf("-- Set memory end .../ 10000000 /... at %zu byte --\n", len + 1);
-	}
+	print_memory_end(len);
 	if (len >= MESSAGE_SIZE)
 	{
 		permutation((unsigned int *)mem, buf);
 		buf->len += get_next_block(&init_mem[buf->len], mem, fd, BLOCK_SIZE);
 	}
 	set_memory_length(&mem[MESSAGE_SIZE], buf->len, 8, buf->is_little_endian);
-    if (DEBUG) {
-        ft_printf("-- Set memory length=%zu starting from %zu byte in %s--\n", buf->len, MESSAGE_SIZE + 1,
-                buf->is_little_endian
-                ? "little endian(least-significant element in the lowest-enumerated (\"smallest numbered\" or \"first\") position)"
-                : "big endian(least-significant element in the largest-enumerated (\"largest numbered\" or \"last\") position)");
-    }
+	print_set_len(buf->len, buf->is_little_endian, MESSAGE_SIZE);
 	permutation((unsigned int *)mem, buf);
 }
 

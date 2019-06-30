@@ -70,7 +70,9 @@ void			permutation512(size_t *mem, t_buf64 *s)
 
 	i = 0;
 	prepare_message_schedule64(mem, schedule);
+	print_table(schedule, 64, "per-round schedule", "%-21zu  ", "s", FALSE);
 	save_start_values64(start_values, s);
+	print_memory(mem, s->bf, 8, SHA512_BLOCK, FALSE);
 	while (i < 80)
 	{
 		t1 = s->bf[7] + sum64(s->bf[4], 14, 18, 41) + ch64(s->bf[4], s->bf[5],
@@ -84,7 +86,9 @@ void			permutation512(size_t *mem, t_buf64 *s)
 		s->bf[2] = s->bf[1];
 		s->bf[1] = s->bf[0];
 		s->bf[0] = t1 + t2;
+		print_words_iteration(s->bf, 8, i, FALSE);
 		i++;
 	}
 	add_start_values512(start_values, s);
+	print_words_processed(s->bf, 8, FALSE);
 }

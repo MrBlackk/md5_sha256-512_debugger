@@ -74,8 +74,9 @@ static void	permutations_sha256(unsigned int *mem, t_buf32 *s)
 
 	i = 0;
 	prepare_msg_schedule(mem, schedule);
+	print_table(schedule, 64, "per-round schedule", "%-11zu  ", "s", TRUE);
 	save_start_values(start_values, s);
-    print_memory(mem, s->bf, s->max_buf, BLOCK_SIZE);
+	print_memory(mem, s->bf, s->max_buf, BLOCK_SIZE, TRUE);
 	while (i < 64)
 	{
 		t1 = s->bf[7] + sum(s->bf[4], 6, 11, 25) + ch(s->bf[4], s->bf[5],
@@ -89,17 +90,18 @@ static void	permutations_sha256(unsigned int *mem, t_buf32 *s)
 		s->bf[2] = s->bf[1];
 		s->bf[1] = s->bf[0];
 		s->bf[0] = t1 + t2;
-        print_words_iteration(s->bf, s->max_buf, i);
+        print_words_iteration(s->bf, s->max_buf, i, TRUE);
 		i++;
 	}
 	add_start_values(start_values, s);
-    print_words_processed(s->bf, s->max_buf);
+    print_words_processed(s->bf, s->max_buf, TRUE);
 }
 
 char		*sha256(char *init_mem, int fd)
 {
 	t_buf32	sh;
 
+	print_table(g_sha256_const, 64, "constants", "%-11zu  ", "K", TRUE);
 	set_initial_values_sha256(&sh);
 	permutations(init_mem, fd, &sh, &permutations_sha256);
 	return (get_result(&sh));
@@ -109,6 +111,7 @@ char		*sha224(char *init_mem, int fd)
 {
 	t_buf32	sh;
 
+	print_table(g_sha256_const, 64, "constants", "%-11zu  ", "K", TRUE);
 	set_initial_values_sha224(&sh);
 	permutations(init_mem, fd, &sh, &permutations_sha256);
 	return (get_result(&sh));

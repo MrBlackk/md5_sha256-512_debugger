@@ -40,7 +40,8 @@ static void		result(char *res, size_t num, char is_little_endian,
 		i += 8;
 	}
 	if (DEBUG) {
-        ft_printf(": %x converting to %s\n", num, res);
+		num = num << size >> size;
+		ft_printf(": %08zx converting to %s\n", num, res);
     }
 }
 
@@ -73,9 +74,13 @@ char			*get_result64(t_buf64 *buf)
 	res = ft_strnew(buf->message_length + 1);
 	if (res == NULL)
 		exit(1);
+	if (DEBUG)
+		ft_printf("\nResults in hex and concatenate final results:\n");
 	i = 0;
 	while (i * 16 < buf->message_length)
 	{
+		if (DEBUG)
+			ft_printf("%c", i + 'A');
 		result(&res[i * 16], buf->bf[i], 0, 64);
 		i++;
 	}

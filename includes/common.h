@@ -63,9 +63,12 @@ void			error_message(char *reason, char *arg);
 unsigned int	right_rotate(unsigned int x, int n);
 size_t			right_rotate64(size_t x, int n);
 char			*get_result64(t_buf64 *buf);
-void print_table(unsigned int *table, unsigned int size, char *name, char *format, char *arrName);
-void print_memory(unsigned int *mem, unsigned int *bf, unsigned int buf_size, unsigned int block_size);
-void print_words_iteration(unsigned int *bf, unsigned int buf_size, unsigned int i);
-void print_words_processed(unsigned int *bf, unsigned int buf_size);
+void print_table(void *table, unsigned int size, char *name, char *format, char *arrName, char cell_size);
+void print_memory(void *mem, void *bf, unsigned int buf_size, unsigned int block_size, char is_int);
+void print_words_iteration(void *bf, unsigned int buf_size, unsigned int i, char is_int);
+void print_words_processed(void *bf, unsigned int buf_size, char is_int);
+void print_initial_words_values(void * bf, unsigned int max_buf, char is_int);
+void print_memory_end(size_t len);
+void print_set_len(size_t len, unsigned char is_little_endian, unsigned int message_size);
 
 #endif

@@ -12,8 +12,6 @@
 
 #include "md5.h"
 
-static unsigned int block_i = 0;
-
 static unsigned int g_md5_const[64] =
 {
 	0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
@@ -59,7 +57,7 @@ static void			permutation_md5(unsigned int *mem, t_buf32 *md)
 	unsigned int	start_values[4];
 
 	save_start_values(start_values, md);
-    print_memory(mem, md->bf, md->max_buf, BLOCK_SIZE);
+    print_memory(mem, md->bf, md->max_buf, BLOCK_SIZE, TRUE);
 	i = 0;
 	while (i < 64)
 	{
@@ -75,11 +73,11 @@ static void			permutation_md5(unsigned int *mem, t_buf32 *md)
 		md->bf[3] = md->bf[2];
 		md->bf[2] = md->bf[1];
 		md->bf[1] = temp;
-        print_words_iteration(md->bf, md->max_buf, i);
+        print_words_iteration(md->bf, md->max_buf, i, TRUE);
 		i++;
 	}
 	add_start_values(start_values, md);
-    print_words_processed(md->bf, md->max_buf);
+    print_words_processed(md->bf, md->max_buf, TRUE);
 }
 
 static void			set_initial_values_md5(t_buf32 *md)
@@ -98,10 +96,8 @@ char				*md5(char *init_mem, int fd)
 {
 	t_buf32	md;
 
-	if (DEBUG) {
-		print_table(g_md5_const, 64, "constants", "%-11zu  ", "K");
-		print_table(g_md5_left_rotation, 64, "per-round shift amounts", "%-2d  ", "s");
-	}
+	print_table(g_md5_const, 64, "constants", "%-11zu  ", "K", TRUE);
+	print_table(g_md5_left_rotation, 64, "per-round shift amounts", "%-2d  ", "s", TRUE);
 	set_initial_values_md5(&md);
 	permutations(init_mem, fd, &md, &permutation_md5);
 	return (get_result(&md));
