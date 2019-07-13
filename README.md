@@ -2,12 +2,12 @@
 Initially it was **42 school** project written in C (with some strange code style). That's why code looks so ugly (really, don't look to code).
 
 ## About
-Recreated part of the OpenSSL functionality: **md5**, **sha224**, **sha256**, **sha384**, **sha512**. It works just as **openssl** on Mac or Linux, but wih additional detailed debug info.
+Recreated part of the OpenSSL functionality: **md5**, **sha224**, **sha256**, **sha384**, **sha512**. It works just as **openssl** on Mac or Linux, but wih additional detailed debug info which could be useful if you write md5/sha on your own.
 
 ## Usage
 Clone repository and run "**make**" command inside folder.
 
-See https://www.embedthis.com/makeme/doc/source/index.html
+For additional information please see https://www.embedthis.com/makeme/doc/source/index.html
 
 ## Flags
 - **-p**, echo STDIN to STDOUT and append the checksum to STDOUT
